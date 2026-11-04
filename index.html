@@ -1085,12 +1085,12 @@
       <form onsubmit="handleLoginSubmit(event)">
         <div class="field-group">
           <label for="login-email">Correo Institucional</label>
-          <input type="email" id="login-email" class="input-clean" value="jhonnas.charris@unisimon.edu.co" placeholder="usuario@unisimon.edu.co" required />
+          <input type="email" id="login-email" class="input-clean" placeholder="estudiante.demo@unisimon.edu.co" required />
         </div>
 
         <div class="field-group">
           <label for="login-password">Contraseña Institucional</label>
-          <input type="password" id="login-password" class="input-clean" value="Unisimon2026*" placeholder="••••••••••••" required />
+          <input type="password" id="login-password" class="input-clean" placeholder="••••••••••••" required />
         </div>
 
         <div class="field-group">
@@ -1153,9 +1153,9 @@
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
           <circle cx="12" cy="7" r="4"></circle>
         </svg>
-        <strong id="display-user-name">Jhonnás Charris</strong>
+        <strong id="display-user-name">Estudiante Demo</strong>
         <span style="opacity:0.4">|</span>
-        <span id="display-user-sub">Cód. 20241082</span>
+        <span id="display-user-sub">Cód. 20240001</span>
         <span class="reputation-badge" id="display-reputation">Fiabilidad 100% · 0 Faltas</span>
       </div>
       <button class="btn-logout" onclick="logoutSession()">
@@ -1837,12 +1837,7 @@ const DEFAULT_PRODUCTS = [
 /* ==========================================================
    ESTADO GLOBAL Y LOGÍSTICA
 ========================================================== */
-let currentUser = JSON.parse(localStorage.getItem('cg_session') || 'null') || {
-  email: 'jhonnas.charris@unisimon.edu.co',
-  name: 'Jhonnás Charris',
-  code: '20241082',
-  role: 'student'
-};
+let currentUser = null;
 let userStrikes = parseInt(localStorage.getItem('cg_strikes') || '0');
 let userStrikeUntil = parseInt(localStorage.getItem('cg_strike_until') || '0');
 let userStrikeReason = localStorage.getItem('cg_strike_reason') || '';
@@ -1858,7 +1853,7 @@ let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
   {
     id: 'CGO-0001',
     date: 'Hoy, 09:20 AM',
-    student: 'Jhonnás Charris',
+    student: 'Estudiante Demo',
     orderType: 'takeaway',
     tableNumber: '',
     pickupTime: 'Lo antes posible',
@@ -1876,6 +1871,14 @@ let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
     expiresAt: null
   }
 ];
+
+if (Array.isArray(orders)) {
+  orders.forEach(o => {
+    if (o.student && (o.student.toLowerCase().includes('charris') || o.student.toLowerCase().includes('jhonnas'))) {
+      o.student = 'Estudiante Demo';
+    }
+  });
+}
 
 let currentCategory = 'Todos';
 let currentRole = 'student';
@@ -1899,19 +1902,25 @@ let activeTimerInterval = null;
    AUTENTICACIÓN Y SESIÓN
 ========================================================== */
 function initAuth() {
-  if (currentUser) {
-    applyUserSession(currentUser);
-  } else {
-    showLoginView();
-  }
+  // Limpiar cualquier sesión residual anterior
+  try {
+    const saved = localStorage.getItem('cg_session');
+    if (saved && (saved.includes('jhonnas') || saved.includes('charris'))) {
+      localStorage.removeItem('cg_session');
+    }
+  } catch (e) {}
+
+  currentUser = null;
+  // Iniciar siempre desde la pantalla de login institucional
+  showLoginView();
 }
 
 function showLoginView() {
   const emailInput = document.getElementById('login-email');
   const passInput = document.getElementById('login-password');
   const roleSelect = document.getElementById('login-role');
-  if (emailInput && !emailInput.value) emailInput.value = 'jhonnas.charris@unisimon.edu.co';
-  if (passInput && !passInput.value) passInput.value = 'Unisimon2026*';
+  if (emailInput) emailInput.value = '';
+  if (passInput) passInput.value = '';
   if (roleSelect) roleSelect.value = 'student';
   document.getElementById('view-login').classList.add('active');
   document.getElementById('authenticated-app').style.display = 'none';
@@ -1922,15 +1931,18 @@ function handleLoginSubmit(e) {
   const email = document.getElementById('login-email').value.trim();
   const role = document.getElementById('login-role').value;
 
-  let name = 'Jhonnás Charris';
-  let code = '20241082';
+  let name = 'Estudiante Demo';
+  let code = '20240001';
 
-  if (email.toLowerCase().includes('cafeteria') || role === 'staff') {
+  if (email.toLowerCase().includes('cafeteria') || email.toLowerCase().includes('personal') || role === 'staff') {
     name = 'Personal Cafetería';
     code = 'STAFF-01';
-  } else if (!email.toLowerCase().includes('jhonnas') && email.includes('@')) {
-    const prefix = email.split('@')[0].replace('.', ' ');
-    name = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+  } else if (email.toLowerCase().includes('demo') || email.toLowerCase().includes('estudiante')) {
+    name = 'Estudiante Demo';
+    code = '20240001';
+  } else if (email.includes('@')) {
+    const prefix = email.split('@')[0].replace(/[._-]/g, ' ');
+    name = prefix.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     code = '2024' + Math.floor(1000 + Math.random() * 9000);
   }
 
@@ -1943,12 +1955,12 @@ function handleLoginSubmit(e) {
 
 function fillQuickLogin(role) {
   if (role === 'student') {
-    document.getElementById('login-email').value = 'jhonnas.charris@unisimon.edu.co';
-    document.getElementById('login-password').value = 'Unisimon2026*';
+    document.getElementById('login-email').value = 'estudiante.demo@unisimon.edu.co';
+    document.getElementById('login-password').value = 'DemoEstudiante2026*';
     document.getElementById('login-role').value = 'student';
   } else {
-    document.getElementById('login-email').value = 'cafeteria.central@unisimon.edu.co';
-    document.getElementById('login-password').value = 'Staff2026*';
+    document.getElementById('login-email').value = 'cafeteria.demo@unisimon.edu.co';
+    document.getElementById('login-password').value = 'DemoPersonal2026*';
     document.getElementById('login-role').value = 'staff';
   }
 }
