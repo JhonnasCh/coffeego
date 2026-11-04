@@ -1085,12 +1085,12 @@
       <form onsubmit="handleLoginSubmit(event)">
         <div class="field-group">
           <label for="login-email">Correo Institucional</label>
-          <input type="email" id="login-email" class="input-clean" placeholder="usuario@unisimon.edu.co" required />
+          <input type="email" id="login-email" class="input-clean" value="jhonnas.charris@unisimon.edu.co" placeholder="usuario@unisimon.edu.co" required />
         </div>
 
         <div class="field-group">
           <label for="login-password">Contraseña Institucional</label>
-          <input type="password" id="login-password" class="input-clean" placeholder="••••••••••••" required />
+          <input type="password" id="login-password" class="input-clean" value="Unisimon2026*" placeholder="••••••••••••" required />
         </div>
 
         <div class="field-group">
@@ -1837,7 +1837,12 @@ const DEFAULT_PRODUCTS = [
 /* ==========================================================
    ESTADO GLOBAL Y LOGÍSTICA
 ========================================================== */
-let currentUser = JSON.parse(localStorage.getItem('cg_session') || 'null');
+let currentUser = JSON.parse(localStorage.getItem('cg_session') || 'null') || {
+  email: 'jhonnas.charris@unisimon.edu.co',
+  name: 'Jhonnás Charris',
+  code: '20241082',
+  role: 'student'
+};
 let userStrikes = parseInt(localStorage.getItem('cg_strikes') || '0');
 let userStrikeUntil = parseInt(localStorage.getItem('cg_strike_until') || '0');
 let userStrikeReason = localStorage.getItem('cg_strike_reason') || '';
@@ -1902,6 +1907,12 @@ function initAuth() {
 }
 
 function showLoginView() {
+  const emailInput = document.getElementById('login-email');
+  const passInput = document.getElementById('login-password');
+  const roleSelect = document.getElementById('login-role');
+  if (emailInput && !emailInput.value) emailInput.value = 'jhonnas.charris@unisimon.edu.co';
+  if (passInput && !passInput.value) passInput.value = 'Unisimon2026*';
+  if (roleSelect) roleSelect.value = 'student';
   document.getElementById('view-login').classList.add('active');
   document.getElementById('authenticated-app').style.display = 'none';
 }
@@ -1911,12 +1922,16 @@ function handleLoginSubmit(e) {
   const email = document.getElementById('login-email').value.trim();
   const role = document.getElementById('login-role').value;
 
-  let name = 'Estudiante Unisimón';
+  let name = 'Jhonnás Charris';
   let code = '20241082';
 
-  if (email.includes('@')) {
+  if (email.toLowerCase().includes('cafeteria') || role === 'staff') {
+    name = 'Personal Cafetería';
+    code = 'STAFF-01';
+  } else if (!email.toLowerCase().includes('jhonnas') && email.includes('@')) {
     const prefix = email.split('@')[0].replace('.', ' ');
     name = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+    code = '2024' + Math.floor(1000 + Math.random() * 9000);
   }
 
   const session = { email, name, code, role };
