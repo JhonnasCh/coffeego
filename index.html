@@ -13,29 +13,23 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
 <div class="app-container">
-
-  <!-- ==================== PANTALLA: LOGIN INSTITUCIONAL ==================== -->
   <section id="view-login" class="active">
     <div class="login-brand-card">
       <img src="logo.jpg" alt="Logo Cafetería Unisimón" class="login-logo-img" />
       <h1>CoffeeGo · Unisimón</h1>
       <p>Acceso institucional a cafetería universitaria</p>
     </div>
-
     <div class="login-form-box">
       <form onsubmit="handleLoginSubmit(event)">
         <div class="field-group">
           <label for="login-email">Correo Institucional</label>
           <input type="email" id="login-email" class="input-clean" placeholder="estudiante.demo@unisimon.edu.co" required />
         </div>
-
         <div class="field-group">
           <label for="login-password">Contraseña Institucional</label>
           <input type="password" id="login-password" class="input-clean" placeholder="••••••••••••" required />
         </div>
-
         <div class="field-group">
           <label for="login-role">Ingresar como</label>
           <select id="login-role" class="input-clean">
@@ -43,10 +37,8 @@
             <option value="staff">Personal de Cafetería (Cocina & Barra)</option>
           </select>
         </div>
-
         <button type="submit" class="btn-action">Iniciar Sesión Institucional</button>
       </form>
-
       <div style="margin-top: 18px; text-align: center;">
         <span style="font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.05em">Accesos de prueba rápida</span>
         <div class="demo-login-grid">
@@ -56,10 +48,7 @@
       </div>
     </div>
   </section>
-
-  <!-- ==================== APLICACIÓN AUTENTICADA ==================== -->
   <div id="authenticated-app" style="display:none; flex-direction:column; min-height:100vh;">
-    <!-- CABECERA -->
     <header class="header">
       <div class="brand">
         <img src="logo.jpg" alt="Logo CoffeeGo" class="brand-logo-img" />
@@ -68,7 +57,6 @@
           <p>Universidad Simón Bolívar</p>
         </div>
       </div>
-
       <div class="header-actions">
         <button class="btn-pill" id="role-indicator-badge" onclick="toggleRoleFromBadge()">
           <span id="role-badge-text">Estudiante</span>
@@ -88,8 +76,6 @@
         </button>
       </div>
     </header>
-
-    <!-- FRANJA DE SESIÓN & REPUTACIÓN -->
     <div class="user-strip">
       <div class="user-strip-details">
         <svg class="icon-svg" style="width:14px; height:14px" viewBox="0 0 24 24">
@@ -110,13 +96,9 @@
         <span>Salir</span>
       </button>
     </div>
-
-    <!-- BANNER DE SANCIÓN VIGENTE (SI EL ESTUDIANTE TIENE STRIKE ACTIVO) -->
     <div class="strike-alert-banner" id="user-strike-banner">
       <span id="strike-banner-text">Sanción activa: Pagos Nequi suspendidos</span>
     </div>
-
-    <!-- SEMÁFORO DE DEMANDA: TIEMPO FIJADO POR COCINA -->
     <div class="kitchen-status-banner" id="kitchen-banner">
       <div style="display:flex; align-items:center">
         <span class="ks-dot ks-normal" id="ks-dot"></span>
@@ -124,10 +106,7 @@
       </div>
       <span style="font-size:11px; color:var(--text-muted)" id="ks-active-summary">0 órdenes en cocina</span>
     </div>
-
-    <!-- VISTAS -->
     <main class="main-view">
-      <!-- VISTA: MENÚ DE PRODUCTOS -->
       <section id="view-menu" class="view active">
         <div class="search-wrapper">
           <div class="search-input-wrapper">
@@ -138,7 +117,6 @@
             <input type="text" id="search-box" class="input-clean" placeholder="Buscar producto o categoría..." oninput="onSearchInput()" />
           </div>
         </div>
-
         <nav class="cat-nav" id="cat-tabs">
           <button class="cat-tab active" onclick="setCategory('Todos', this)">Todos</button>
           <button class="cat-tab" onclick="setCategory('Bebidas calientes', this)">Cafés & Calientes</button>
@@ -153,23 +131,17 @@
             Favoritos
           </button>
         </nav>
-
         <div class="product-section-title" id="cat-header-label">Menú del día</div>
         <div class="product-list" id="products-container"></div>
       </section>
-
-      <!-- VISTA: CARRITO -->
       <section id="view-cart" class="view">
         <div class="cart-container">
           <h2 class="section-headline">Mi Carrito</h2>
           <p class="section-subtitle">Revisa tus productos antes de enviar la orden</p>
-
           <div id="cart-active-order-warning" style="display:none; background:var(--warning-bg); border:1px solid var(--warning); padding:12px; border-radius:var(--radius-sm); margin-bottom:14px; font-size:12px; color:var(--text);">
             <strong>Aviso de logística:</strong> Tienes una orden activa en proceso. Debes retirar tu pedido anterior antes de solicitar uno nuevo.
           </div>
-
           <div id="cart-items-wrapper"></div>
-
           <div id="cart-empty-message" style="display:none; text-align:center; padding: 48px 10px; color: var(--text-muted)">
             <svg class="icon-svg" style="width:40px; height:40px; color:var(--text-faint); margin-bottom:10px" viewBox="0 0 24 24">
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -180,9 +152,7 @@
             <p style="font-size:12px; margin-top:4px">Selecciona algún producto del menú para comenzar.</p>
             <button class="btn-action" style="max-width:180px; margin: 16px auto 0;" onclick="switchView('menu')">Ir al Menú</button>
           </div>
-
           <div id="cart-checkout-section" style="display:none">
-            <!-- MODALIDAD DE CONSUMO -->
             <div class="cart-form-group">
               <label>Modalidad de entrega</label>
               <div class="option-grid">
@@ -199,8 +169,6 @@
                 <input type="text" id="table-number-input" class="input-clean" placeholder="Número de mesa (Ej: Mesa 6)" />
               </div>
             </div>
-
-            <!-- HORA DE RECOGIDA -->
             <div class="cart-form-group">
               <label>Hora deseada de recogida</label>
               <select id="cart-pickup-time" class="input-clean">
@@ -211,8 +179,6 @@
                 <option value="En 1 hora">En 1 hora</option>
               </select>
             </div>
-
-            <!-- FORMA DE PAGO: SOLO EFECTIVO Y NEQUI -->
             <div class="cart-form-group">
               <label>Forma de pago</label>
               <div class="option-grid">
@@ -225,8 +191,6 @@
                   <small>Pago previo con comprobante</small>
                 </div>
               </div>
-
-              <!-- DETALLES Y FLUJO NEQUI -->
               <div id="nequi-info-box" class="nequi-box" style="display:none;">
                 <div class="nequi-header">
                   <div>
@@ -234,7 +198,6 @@
                     <span style="font-size:11px; color:var(--text-muted)">Escanea el QR o transfiere al número oficial</span>
                   </div>
                 </div>
-
                 <div class="nequi-qr-wrap">
                   <div id="nequi-static-qr"></div>
                   <div class="nequi-info-text">
@@ -243,23 +206,18 @@
                     <div>Total exacto: <strong id="nequi-transfer-amount" style="color:var(--primary); font-size:14px">$0</strong></div>
                   </div>
                 </div>
-
-                <!-- PASO 1: CONFIRMACIÓN DEL ENVÍO -->
                 <div class="step-box">
                   <div class="step-box-title">
                     <input type="checkbox" id="chk-nequi-sent" onchange="toggleNequiStep2(this.checked)" style="width:16px; height:16px; cursor:pointer;" />
                     <label for="chk-nequi-sent" style="cursor:pointer; margin:0; text-transform:none; font-size:12px;">Paso 1: Ya envié el dinero desde mi app Nequi</label>
                   </div>
                 </div>
-
-                <!-- PASO 2: ADJUNTAR CAPTURA Y REFERENCIA (DESBLOQUEABLE) -->
                 <div class="upload-proof-box" id="nequi-step2-box">
                   <div class="step-box">
                     <div class="step-box-title">Paso 2: Adjunta la captura de tu comprobante</div>
                     <p style="font-size:11px; color:var(--text-muted); margin-bottom:8px">
                       Sube la captura de pantalla de la transferencia o genera una de prueba:
                     </p>
-
                     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px">
                       <input type="file" id="nequi-proof-input" accept="image/*" style="display:none" onchange="handleProofFileSelected(event)" />
                       <button type="button" class="btn-pill" onclick="document.getElementById('nequi-proof-input').click()">
@@ -269,9 +227,7 @@
                         Simular Captura Nequi
                       </button>
                     </div>
-
                     <img id="nequi-proof-preview" class="proof-preview-img" alt="Vista previa comprobante" />
-
                     <div style="margin-top:10px">
                       <label style="font-size:11px; font-weight:700; display:block; margin-bottom:4px; text-transform:uppercase;">
                         Número de Aprobación / Referencia Nequi
@@ -281,13 +237,10 @@
                   </div>
                 </div>
               </div>
-
               <p style="font-size:11px; color:var(--text-muted); margin-top:6px" id="payment-policy-note">
                 * Cuentas con 15 minutos para retirar en barra una vez la cocina marque tu pedido como listo.
               </p>
             </div>
-
-            <!-- RESUMEN -->
             <div class="summary-box">
               <div class="summary-line">
                 <span>Subtotal</span>
@@ -302,13 +255,10 @@
                 <span id="sum-total">$0</span>
               </div>
             </div>
-
             <button class="btn-action" id="btn-confirm-order" onclick="confirmOrder()">Confirmar y Generar Código QR</button>
           </div>
         </div>
       </section>
-
-      <!-- VISTA: CONFIRMACIÓN Y TICKET -->
       <section id="view-ticket" class="view">
         <div class="ticket-card">
           <div class="ticket-header">
@@ -317,8 +267,6 @@
             <div class="ticket-code" id="tk-code">CGO-0001</div>
             <div id="tk-status-badge"></div>
           </div>
-
-          <!-- AVISO PAGO PENDIENTE NEQUI -->
           <div class="nequi-pending-notice" id="tk-nequi-notice" style="display:none">
             <strong>Comprobante Nequi enviado a verificación:</strong>
             <div style="margin-top:4px">
@@ -327,18 +275,14 @@
             </div>
             <div id="tk-proof-img-holder" style="margin-top:8px"></div>
           </div>
-
-          <!-- TIMER DE 15 MIN PARA RETIRO -->
           <div class="pickup-timer-box" id="tk-timer-box" style="display:none">
             <div class="pt-title" id="pt-timer-title">Tiempo restante para retirar en barra</div>
             <div class="pt-countdown" id="pt-timer-val">15:00</div>
             <div class="pt-desc" id="pt-timer-desc">Acércate al mostrador. Si no se retira a tiempo, se liberará la bandeja.</div>
           </div>
-
           <div class="qr-holder">
             <div id="tk-qr"></div>
           </div>
-
           <div class="ticket-meta">
             <div><strong>Estudiante:</strong> <span id="tk-student">--</span></div>
             <div><strong>Modalidad:</strong> <span id="tk-type">Para llevar</span></div>
@@ -347,20 +291,15 @@
             <div id="tk-nequi-meta-row" style="display:none"><strong>Comprobante Nequi:</strong> <span id="tk-nequi-meta">--</span></div>
             <div><strong>Fecha:</strong> <span id="tk-date">--</span></div>
           </div>
-
           <div class="ticket-items" id="tk-items"></div>
-
           <div class="summary-line total" style="margin-top:0">
             <span>Total</span>
             <span id="tk-total">$0</span>
           </div>
-
           <button class="btn-action" style="margin-top:16px" onclick="switchView('orders')">Ver Estado en Mis Pedidos</button>
           <button class="btn-secondary-action" onclick="switchView('menu')">Volver al Menú</button>
         </div>
       </section>
-
-      <!-- VISTA: MIS PEDIDOS -->
       <section id="view-orders" class="view">
         <div style="padding: 18px 18px 8px;">
           <h2 class="section-headline">Mis Pedidos</h2>
@@ -368,8 +307,6 @@
         </div>
         <div id="orders-feed"></div>
       </section>
-
-      <!-- VISTA: MODO PERSONAL CAFETERÍA (KDS) -->
       <section id="view-staff" class="view">
         <div class="staff-stats">
           <div class="stat-pill">
@@ -385,8 +322,6 @@
             <div class="stat-label">Ventas Hoy</div>
           </div>
         </div>
-
-        <!-- CONFIGURADOR DEL TIEMPO DE ESPERA POR EL PERSONAL DE COCINA -->
         <div class="kitchen-timing-config">
           <div class="ktc-header">
             <div>
@@ -395,7 +330,6 @@
             </div>
             <span class="mini-badge" style="background:var(--accent-light); color:var(--primary); font-size:12px; font-weight:800;" id="staff-current-wait-badge">~15 min</span>
           </div>
-
           <div class="ktc-preset-row">
             <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(10)">10 min</button>
             <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(15)">15 min</button>
@@ -404,14 +338,11 @@
             <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(60)">60 min</button>
             <button type="button" class="ktc-chip" id="btn-calc-auto" onclick="setKitchenWaitTime('auto')">Auto (por cola)</button>
           </div>
-
           <div class="ktc-custom-row">
             <input type="number" id="input-custom-wait" class="input-clean" placeholder="Minutos personalizados..." min="1" max="180" style="padding:8px 10px; font-size:13px;" />
             <button type="button" class="btn-pill" style="background:var(--primary); color:#fff; border-color:var(--primary);" onclick="applyCustomWaitTime()">Fijar</button>
           </div>
         </div>
-
-        <!-- CONTROL DE PAUSA -->
         <div class="kitchen-controls-bar">
           <div>
             <span style="font-size:13px; font-weight:700; display:block">Recepción de Nuevos Pedidos</span>
@@ -421,8 +352,6 @@
             Pausar Nuevos Pedidos
           </button>
         </div>
-
-        <!-- ENTREGA RÁPIDA POR CÓDIGO -->
         <div style="padding: 12px 18px; border-bottom: 1px solid var(--border);">
           <label style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px">ENTREGA RÁPIDA EN BARRA</label>
           <div style="display:flex; gap:8px;">
@@ -430,13 +359,10 @@
             <button class="btn-pill" style="background:var(--primary); color:#fff;" onclick="quickValidateStaffCode()">Entregar</button>
           </div>
         </div>
-
         <div class="product-section-title">Comandas en cocina</div>
         <div id="staff-orders-list"></div>
       </section>
     </main>
-
-    <!-- BARRA INFERIOR -->
     <nav class="bottom-bar">
       <button class="nav-btn active" id="tab-menu" onclick="switchView('menu')">
         <svg class="icon-svg" viewBox="0 0 24 24">
@@ -474,8 +400,6 @@
     </nav>
   </div>
 </div>
-
-<!-- ==================== MODAL: DETALLE DEL PRODUCTO ==================== -->
 <div class="modal-backdrop" id="modal-product" onclick="closeModalOnBackdrop(event, 'modal-product')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -489,10 +413,7 @@
         <div id="modal-p-price" style="font-size:15px; font-weight:800; color:var(--primary); margin-top:4px">$0</div>
       </div>
     </div>
-
-    <!-- OPCIONES -->
     <div id="modal-custom-options">
-      <!-- TAMAÑO -->
       <div class="cart-form-group" id="group-size" style="margin-top:10px">
         <label>Tamaño de la porción</label>
         <div class="option-grid">
@@ -506,8 +427,6 @@
           </div>
         </div>
       </div>
-
-      <!-- TIPO DE LECHE -->
       <div class="cart-form-group" id="group-milk" style="margin-top:10px">
         <label>Tipo de leche</label>
         <select id="modal-milk-select" class="input-clean">
@@ -517,8 +436,6 @@
           <option value="Sin leche">Sin leche / Negro</option>
         </select>
       </div>
-
-      <!-- ENDULZANTE -->
       <div class="cart-form-group" id="group-sweet" style="margin-top:10px">
         <label>Endulzante</label>
         <select id="modal-sugar-select" class="input-clean">
@@ -529,14 +446,10 @@
         </select>
       </div>
     </div>
-
-    <!-- NOTA -->
     <div class="cart-form-group" style="margin-top:10px">
       <label>Indicación especial (Opcional)</label>
       <input type="text" id="modal-note-input" class="input-clean" placeholder="Ej: bien caliente, panela aparte..." />
     </div>
-
-    <!-- CANTIDAD -->
     <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px;">
       <span style="font-size:13px; font-weight:700">Cantidad</span>
       <div style="display:flex; align-items:center; gap:10px">
@@ -545,14 +458,11 @@
         <button class="qty-btn" onclick="updateModalQty(1)">+</button>
       </div>
     </div>
-
     <button class="btn-action" style="margin-top:16px" onclick="addModalItemToCart()">
       Agregar al pedido · <span id="modal-btn-total">$0</span>
     </button>
   </div>
 </div>
-
-<!-- ==================== MODAL: VISOR DE COMPROBANTE NEQUI ==================== -->
 <div class="modal-backdrop" id="modal-proof-viewer" onclick="closeModalOnBackdrop(event, 'modal-proof-viewer')">
   <div class="modal-sheet" style="text-align:center;">
     <div class="modal-handle"></div>
@@ -564,14 +474,11 @@
     <button class="btn-secondary-action" style="margin-top:14px;" onclick="document.getElementById('modal-proof-viewer').classList.remove('open')">Cerrar Visor</button>
   </div>
 </div>
-
-<!-- ==================== MODAL: SANCIONAR / APLICAR STRIKE (PERSONAL) ==================== -->
 <div class="modal-backdrop" id="modal-strike" onclick="closeModalOnBackdrop(event, 'modal-strike')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <h3 style="font-size:16px; font-weight:800; color:var(--danger); margin-bottom:4px">Sancionar Estudiante por Comprobante Falso u Obsceno</h3>
     <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px" id="modal-strike-target">Orden: --</p>
-
     <div class="cart-form-group" style="margin-top:0">
       <label>Motivo de la Sanción</label>
       <select id="strike-reason-select" class="input-clean">
@@ -581,7 +488,6 @@
         <option value="Incumplimiento reiterado en reclamo de pedido">Incumplimiento en reclamo de pedido</option>
       </select>
     </div>
-
     <div class="cart-form-group">
       <label>Duración de la Sanción Temporal</label>
       <select id="strike-duration-select" class="input-clean">
@@ -595,7 +501,6 @@
         * Durante la sanción, el estudiante perderá fiabilidad institucional y tendrá bloqueado el pago con Nequi.
       </p>
     </div>
-
     <button class="btn-action" style="background:var(--danger); color:#fff; margin-top:16px;" onclick="confirmApplyStrike()">
       Aplicar Sanción y Cancelar Pedido
     </button>
@@ -604,11 +509,7 @@
     </button>
   </div>
 </div>
-
-<!-- TOAST -->
 <div id="toast"></div>
-
-
 <script src="app.js"></script>
 </body>
 </html>

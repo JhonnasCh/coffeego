@@ -1,4 +1,3 @@
-    /* MODO CLARO CON TOQUES VERDES INSTITUCIONALES */
     :root {
       --bg: #f8faf8;
       --surface: #ffffff;
@@ -24,8 +23,6 @@
       --radius-full: 9999px;
       --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
-
-    /* MODO OSCURO CAFÉ TOSTADO RESTAURADO */
     [data-theme="dark"] {
       --bg: #141210;
       --surface: #1d1916;
@@ -47,7 +44,6 @@
       --danger: #e05e50;
       --danger-bg: #2a1614;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       font-family: var(--font);
@@ -56,11 +52,8 @@
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
-
     button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
     input, select, textarea { font-family: inherit; color: inherit; }
-
-    /* SILUETAS VECTORIALES SVG */
     .icon-svg {
       width: 18px;
       height: 18px;
@@ -73,8 +66,6 @@
       vertical-align: middle;
       flex-shrink: 0;
     }
-
-    /* CONTENEDOR APP */
     .app-container {
       max-width: 600px;
       margin: 0 auto;
@@ -86,8 +77,6 @@
       border-right: 1px solid var(--border-subtle);
       position: relative;
     }
-
-    /* PANTALLA LOGIN */
     #view-login {
       display: none;
       flex: 1;
@@ -99,7 +88,6 @@
     #view-login.active {
       display: flex;
     }
-
     .login-brand-card {
       text-align: center;
       margin-bottom: 24px;
@@ -120,7 +108,6 @@
       color: var(--text-muted);
       margin-top: 4px;
     }
-
     .login-form-box {
       background: var(--surface-subtle);
       border: 1px solid var(--border);
@@ -152,7 +139,6 @@
     .input-clean:focus {
       border-color: var(--primary);
     }
-
     .demo-login-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -174,8 +160,6 @@
       border-color: var(--primary);
       color: var(--primary);
     }
-
-    /* CABECERA APP */
     .header {
       position: sticky;
       top: 0;
@@ -187,7 +171,6 @@
       align-items: center;
       justify-content: space-between;
     }
-
     .brand {
       display: flex;
       align-items: center;
@@ -207,13 +190,11 @@
       font-size: 11px;
       color: var(--text-muted);
     }
-
     .header-actions {
       display: flex;
       align-items: center;
       gap: 6px;
     }
-
     .btn-pill {
       font-size: 12px;
       font-weight: 600;
@@ -254,8 +235,6 @@
       align-items: center;
       justify-content: center;
     }
-
-    /* FRANJA DE SESIÓN & REPUTACIÓN */
     .user-strip {
       background: var(--surface-subtle);
       padding: 8px 18px;
@@ -294,7 +273,6 @@
       background: var(--danger-bg);
       color: var(--danger);
     }
-
     .btn-logout {
       color: var(--danger);
       font-weight: 600;
@@ -302,8 +280,6 @@
       align-items: center;
       gap: 4px;
     }
-
-    /* ALERTA DE SANCIÓN TEMPORAL */
     .strike-alert-banner {
       background: var(--danger-bg);
       border-bottom: 1px solid var(--danger);
@@ -313,8 +289,6 @@
       font-weight: 600;
       display: none;
     }
-
-    /* BANNER DE ESPERA CONFIGURADA POR COCINA */
     .kitchen-status-banner {
       padding: 9px 18px;
       font-size: 12px;
@@ -334,8 +308,6 @@
     .ks-normal { background: var(--success); }
     .ks-busy { background: var(--warning); }
     .ks-paused { background: var(--danger); }
-
-    /* VISTAS */
     .main-view {
       flex: 1;
       padding-bottom: 74px;
@@ -346,8 +318,6 @@
     .view.active {
       display: block;
     }
-
-    /* BUSCADOR Y CATEGORÍAS */
     .search-wrapper {
       padding: 14px 18px 8px;
       position: relative;
@@ -365,7 +335,6 @@
     .search-input-wrapper input {
       padding-left: 38px;
     }
-
     .cat-nav {
       display: flex;
       gap: 6px;
@@ -392,8 +361,6 @@
       color: #ffffff;
       border-color: var(--primary);
     }
-
-    /* PRODUCTOS */
     .product-section-title {
       padding: 12px 18px 6px;
       font-size: 12px;
@@ -422,7 +389,6 @@
       opacity: 0.45;
       cursor: not-allowed;
     }
-
     .product-img-box {
       width: 64px;
       height: 64px;
@@ -439,7 +405,6 @@
       object-fit: cover;
       display: block;
     }
-
     .product-details {
       flex: 1;
       min-width: 0;
@@ -488,7 +453,6 @@
       background: var(--danger-bg);
       color: var(--danger);
     }
-
     .fav-btn {
       color: var(--text-faint);
       padding: 8px;
@@ -500,8 +464,6 @@
     .fav-btn.active {
       color: #e53e3e;
     }
-
-    /* CARRITO */
     .cart-container {
       padding: 18px;
     }
@@ -516,7 +478,6 @@
       color: var(--text-muted);
       margin-bottom: 18px;
     }
-
     .cart-item-row {
       display: flex;
       align-items: flex-start;
@@ -573,7 +534,6 @@
       min-width: 20px;
       text-align: center;
     }
-
     .cart-form-group {
       margin-top: 18px;
       background: var(--surface-subtle);
@@ -590,7 +550,6 @@
       letter-spacing: 0.04em;
       color: var(--text-muted);
     }
-
     .option-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -618,8 +577,6 @@
       color: var(--text-muted);
       font-weight: normal;
     }
-
-    /* NEQUI: TARJETA DE PAGO Y SUBIDA DE COMPROBANTE */
     .nequi-box {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -651,7 +608,6 @@
       font-size: 12px;
       line-height: 1.6;
     }
-
     .step-box {
       background: var(--surface-subtle);
       border: 1px solid var(--border);
@@ -681,7 +637,6 @@
       background: var(--surface);
       display: none;
     }
-
     .summary-box {
       margin-top: 16px;
       padding-top: 14px;
@@ -702,7 +657,6 @@
       padding-top: 8px;
       border-top: 1px dashed var(--border);
     }
-
     .btn-action {
       width: 100%;
       background: var(--primary);
@@ -735,8 +689,6 @@
       border-radius: var(--radius);
       margin-top: 8px;
     }
-
-    /* TICKET / RECIBO */
     .ticket-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -773,7 +725,6 @@
       justify-content: center;
       margin: 16px 0;
     }
-
     .pickup-timer-box {
       background: var(--warning-bg);
       border: 1px solid var(--warning);
@@ -807,8 +758,6 @@
       font-size: 11px;
       color: var(--text-muted);
     }
-
-    /* AVISO DE PAGO PENDIENTE NEQUI */
     .nequi-pending-notice {
       background: var(--warning-bg);
       border: 1px solid var(--warning);
@@ -818,7 +767,6 @@
       font-size: 12px;
       line-height: 1.5;
     }
-
     .ticket-meta {
       font-size: 12px;
       color: var(--text-muted);
@@ -836,8 +784,6 @@
       font-size: 13px;
       padding: 4px 0;
     }
-
-    /* HISTORIAL */
     .order-entry {
       padding: 14px 18px;
       border-bottom: 1px solid var(--border-subtle);
@@ -866,8 +812,6 @@
     .st-entregado { background: var(--surface-subtle); color: var(--text-faint); }
     .st-no_reclamado { background: var(--danger-bg); color: var(--danger); }
     .st-sancionado { background: var(--danger-bg); color: var(--danger); }
-
-    /* PANEL DE CAFETERÍA / KDS */
     .staff-stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -893,8 +837,6 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
-
-    /* CONFIGURADOR DE TIEMPO POR COCINA */
     .kitchen-timing-config {
       padding: 14px 18px;
       background: var(--surface);
@@ -931,7 +873,6 @@
       gap: 8px;
       align-items: center;
     }
-
     .kitchen-controls-bar {
       padding: 12px 18px;
       background: var(--surface-subtle);
@@ -953,8 +894,6 @@
       border-color: var(--danger);
       color: var(--danger);
     }
-
-    /* MINIATURA DE COMPROBANTE EN COCINA */
     .proof-thumbnail-btn {
       width: 50px;
       height: 50px;
@@ -971,8 +910,6 @@
       height: 100%;
       object-fit: cover;
     }
-
-    /* BARRA INFERIOR */
     .bottom-bar {
       position: sticky;
       bottom: 0;
@@ -1000,8 +937,6 @@
       color: var(--primary);
       background: var(--accent-light);
     }
-
-    /* MODALES */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -1031,8 +966,6 @@
       border-radius: 4px;
       margin: 0 auto 16px;
     }
-
-    /* TOAST */
     #toast {
       position: fixed;
       bottom: 74px;
