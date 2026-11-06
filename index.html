@@ -275,6 +275,8 @@
             </div>
             <div id="tk-proof-img-holder" style="margin-top:8px"></div>
           </div>
+          <div class="queue-position-badge" id="tk-queue-info" style="display:none; background:var(--accent-light); color:var(--primary); padding:10px 14px; border-radius:var(--radius-sm); font-size:13px; font-weight:700; text-align:center; margin-bottom:10px;"></div>
+          <div id="tk-rejection-box" style="display:none; background:var(--danger-bg); color:var(--danger); padding:10px 14px; border-radius:var(--radius-sm); font-size:12px; margin-bottom:10px;"></div>
           <div class="pickup-timer-box" id="tk-timer-box" style="display:none">
             <div class="pt-title" id="pt-timer-title">Tiempo restante para retirar en barra</div>
             <div class="pt-countdown" id="pt-timer-val">15:00</div>
@@ -359,8 +361,16 @@
             <button class="btn-pill" style="background:var(--primary); color:#fff;" onclick="quickValidateStaffCode()">Entregar</button>
           </div>
         </div>
-        <div class="product-section-title">Comandas en cocina</div>
+        <div class="product-section-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <span>Comandas en cocina</span>
+          <div style="display:flex; gap:4px;">
+            <button class="ktc-chip active" id="sort-arrival" onclick="setStaffSort('arrival')">Por llegada</button>
+            <button class="ktc-chip" id="sort-priority" onclick="setStaffSort('priority')">Por rapidez</button>
+          </div>
+        </div>
         <div id="staff-orders-list"></div>
+        <div class="product-section-title" style="margin-top:14px;">Historial de Sanciones</div>
+        <div id="staff-strike-history" style="margin:0 18px 18px; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; background:var(--surface);"></div>
       </section>
     </main>
     <nav class="bottom-bar">
@@ -505,6 +515,23 @@
       Aplicar Sanción y Cancelar Pedido
     </button>
     <button class="btn-secondary-action" onclick="document.getElementById('modal-strike').classList.remove('open')">
+      Cancelar
+    </button>
+  </div>
+</div>
+<div class="modal-backdrop" id="modal-reject" onclick="closeModalOnBackdrop(event, 'modal-reject')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3 style="font-size:16px; font-weight:800; color:var(--warning); margin-bottom:4px">Rechazar Pedido Nequi</h3>
+    <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px" id="modal-reject-target">Orden: --</p>
+    <div class="cart-form-group" style="margin-top:0">
+      <label>Motivo del Rechazo (visible para el estudiante)</label>
+      <textarea id="reject-reason-input" class="input-clean" rows="3" placeholder="Ej: El monto transferido no coincide con el total del pedido..." style="resize:vertical; min-height:60px;"></textarea>
+    </div>
+    <button class="btn-action" style="background:var(--warning); color:#fff; margin-top:12px;" onclick="confirmRejectOrder()">
+      Confirmar Rechazo
+    </button>
+    <button class="btn-secondary-action" onclick="document.getElementById('modal-reject').classList.remove('open')">
       Cancelar
     </button>
   </div>

@@ -6,7 +6,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Café negro colombiano recién colado en taza, con toque de panela.',
     price: 1800,
     cat: 'Bebidas calientes',
-    available: true
+    available: true,
+    prepTime: 3
   },
   {
     id: 2,
@@ -15,7 +16,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Espresso suave con leche entera o cremada caliente.',
     price: 2500,
     cat: 'Bebidas calientes',
-    available: true
+    available: true,
+    prepTime: 4
   },
   {
     id: 3,
@@ -24,7 +26,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Infusión caliente en vaso de cristal con yerbabuena, manzana y canela.',
     price: 1500,
     cat: 'Bebidas calientes',
-    available: true
+    available: true,
+    prepTime: 3
   },
   {
     id: 4,
@@ -33,7 +36,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Espresso doble con espuma densa de leche vaporizada y canela en polvo.',
     price: 3800,
     cat: 'Bebidas calientes',
-    available: true
+    available: true,
+    prepTime: 5
   },
   {
     id: 5,
@@ -42,7 +46,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Taza de chocolate de cacao colombiano tradicional bien caliente.',
     price: 2800,
     cat: 'Bebidas calientes',
-    available: true
+    available: true,
+    prepTime: 4
   },
   {
     id: 6,
@@ -51,7 +56,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Vaso de jugo natural de pulpa de lulo servido bien frío con hielo.',
     price: 2500,
     cat: 'Bebidas frías',
-    available: true
+    available: true,
+    prepTime: 5
   },
   {
     id: 7,
@@ -60,7 +66,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Maracuyá fresco, dulce y refrescante con hielo triturado.',
     price: 2500,
     cat: 'Bebidas frías',
-    available: true
+    available: true,
+    prepTime: 5
   },
   {
     id: 8,
@@ -69,7 +76,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Cremosa y fría, elaborada con crema de coco natural y limón fresco.',
     price: 3500,
     cat: 'Bebidas frías',
-    available: true
+    available: true,
+    prepTime: 6
   },
   {
     id: 9,
@@ -78,7 +86,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Avena cremosa batida con leche y un toque de canela aromática.',
     price: 2200,
     cat: 'Bebidas frías',
-    available: true
+    available: true,
+    prepTime: 4
   },
   {
     id: 10,
@@ -87,7 +96,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Plato completo con arroz, proteína a la plancha, ensalada fresca y jugo.',
     price: 9500,
     cat: 'Almuerzos',
-    available: true
+    available: true,
+    prepTime: 18
   },
   {
     id: 11,
@@ -96,7 +106,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Pechuga desmechada con lechuga, maíz tierno, tomates cherry y aderezo.',
     price: 8000,
     cat: 'Almuerzos',
-    available: true
+    available: true,
+    prepTime: 15
   },
   {
     id: 12,
@@ -105,7 +116,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Cazuela casera de frijoles rojos con plátano maduro y arroz.',
     price: 8500,
     cat: 'Almuerzos',
-    available: false
+    available: false,
+    prepTime: 20
   },
   {
     id: 13,
@@ -114,7 +126,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Empanadas doradas y crocantes de maíz colombiano con ají picante.',
     price: 3500,
     cat: 'Snacks',
-    available: true
+    available: true,
+    prepTime: 6
   },
   {
     id: 14,
@@ -123,7 +136,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Pandebono recién horneado con queso costeño y almidón de yuca.',
     price: 2000,
     cat: 'Snacks',
-    available: true
+    available: true,
+    prepTime: 2
   },
   {
     id: 15,
@@ -132,7 +146,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Buñuelo redondo, crocante por fuera y suave esponjoso por dentro.',
     price: 1600,
     cat: 'Snacks',
-    available: true
+    available: true,
+    prepTime: 2
   },
   {
     id: 16,
@@ -141,7 +156,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Arepa dulce de maíz tierno asada con mantequilla y queso derretido.',
     price: 3200,
     cat: 'Snacks',
-    available: true
+    available: true,
+    prepTime: 8
   },
   {
     id: 17,
@@ -150,7 +166,8 @@ const DEFAULT_PRODUCTS = [
     desc: 'Porción melcochuda de brownie de chocolate semiamargo con nueces.',
     price: 3500,
     cat: 'Postres',
-    available: true
+    available: true,
+    prepTime: 2
   },
   {
     id: 18,
@@ -159,9 +176,13 @@ const DEFAULT_PRODUCTS = [
     desc: 'Torta húmeda tradicional bañada en salsa de tres leches.',
     price: 3800,
     cat: 'Postres',
-    available: true
+    available: true,
+    prepTime: 2
   }
 ];
+
+const MAX_ACTIVE_ORDERS = 2;
+
 let currentUser = null;
 let userStrikes = parseInt(localStorage.getItem('cg_strikes') || '0');
 let userStrikeUntil = parseInt(localStorage.getItem('cg_strike_until') || '0');
@@ -190,9 +211,13 @@ let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
     status: 'entregado',
     token: 'tok_demo1',
     readyAt: null,
-    expiresAt: null
+    expiresAt: null,
+    rejectionReason: null
   }
 ];
+
+let strikeHistory = JSON.parse(localStorage.getItem('cg_strike_history') || '[]');
+
 if (Array.isArray(orders)) {
   orders.forEach(o => {
     if (o.student && (o.student.toLowerCase().includes('charris') || o.student.toLowerCase().includes('jhonnas'))) {
@@ -200,6 +225,7 @@ if (Array.isArray(orders)) {
     }
   });
 }
+
 let currentCategory = 'Todos';
 let currentRole = 'student';
 let orderType = 'takeaway';
@@ -211,6 +237,8 @@ let modalQty = 1;
 let modalExtraPrice = 0;
 let modalSelectedSize = 'Regular';
 let activeTimerInterval = null;
+let staffSortMode = 'arrival';
+
 function initAuth() {
   try {
     const saved = localStorage.getItem('cg_session');
@@ -221,6 +249,7 @@ function initAuth() {
   currentUser = null;
   showLoginView();
 }
+
 function showLoginView() {
   const emailInput = document.getElementById('login-email');
   const passInput = document.getElementById('login-password');
@@ -231,6 +260,7 @@ function showLoginView() {
   document.getElementById('view-login').classList.add('active');
   document.getElementById('authenticated-app').style.display = 'none';
 }
+
 function handleLoginSubmit(e) {
   e.preventDefault();
   const email = document.getElementById('login-email').value.trim();
@@ -254,6 +284,7 @@ function handleLoginSubmit(e) {
   applyUserSession(session);
   showToast('Bienvenido, ' + name);
 }
+
 function fillQuickLogin(role) {
   if (role === 'student') {
     document.getElementById('login-email').value = 'estudiante.demo@unisimon.edu.co';
@@ -265,6 +296,7 @@ function fillQuickLogin(role) {
     document.getElementById('login-role').value = 'staff';
   }
 }
+
 function applyUserSession(user) {
   currentRole = user.role;
   document.getElementById('view-login').classList.remove('active');
@@ -286,12 +318,14 @@ function applyUserSession(user) {
     switchView('menu');
   }
 }
+
 function logoutSession() {
   currentUser = null;
   localStorage.removeItem('cg_session');
   showLoginView();
   showToast('Sesión cerrada');
 }
+
 function toggleRoleFromBadge() {
   currentRole = currentRole === 'student' ? 'staff' : 'student';
   if (currentUser) {
@@ -307,11 +341,13 @@ function toggleRoleFromBadge() {
     showToast('Modo Estudiante');
   }
 }
+
 function updateRoleUI() {
   const isStaff = currentRole === 'staff';
   document.getElementById('role-badge-text').textContent = isStaff ? 'Personal Cafetería' : 'Estudiante';
   document.getElementById('tab-staff').style.display = isStaff ? 'flex' : 'none';
 }
+
 function checkStrikeActiveStatus() {
   const now = Date.now();
   const banner = document.getElementById('user-strike-banner');
@@ -327,6 +363,7 @@ function checkStrikeActiveStatus() {
     banner.style.display = 'none';
   }
 }
+
 function renderReputationBadge() {
   const repEl = document.getElementById('display-reputation');
   const now = Date.now();
@@ -345,6 +382,7 @@ function renderReputationBadge() {
     repEl.textContent = `${userStrikes} Faltas`;
   }
 }
+
 function calculateEffectiveWaitTime() {
   const activeOrdersCount = orders.filter(o => o.status === 'recibido' || o.status === 'preparando' || o.status === 'pendiente_pago').length;
   if (kitchenWaitSetting === 'auto') {
@@ -355,6 +393,7 @@ function calculateEffectiveWaitTime() {
     return { mins: fixedMins, isAuto: false, count: activeOrdersCount };
   }
 }
+
 function updateKitchenWaitUI() {
   const waitInfo = calculateEffectiveWaitTime();
   const ksDot = document.getElementById('ks-dot');
@@ -392,6 +431,7 @@ function updateKitchenWaitUI() {
     }
   });
 }
+
 function setKitchenWaitTime(mins) {
   kitchenWaitSetting = String(mins);
   localStorage.setItem('cg_kitchen_wait_setting', kitchenWaitSetting);
@@ -399,6 +439,7 @@ function setKitchenWaitTime(mins) {
   const info = calculateEffectiveWaitTime();
   showToast(mins === 'auto' ? `Modo automático activado (~${info.mins} min por cola)` : `Tiempo de espera fijado en ${mins} min`);
 }
+
 function applyCustomWaitTime() {
   const input = document.getElementById('input-custom-wait');
   const val = parseInt(input.value);
@@ -409,6 +450,7 @@ function applyCustomWaitTime() {
   setKitchenWaitTime(val);
   input.value = '';
 }
+
 function toggleKitchenPause() {
   kitchenPaused = !kitchenPaused;
   localStorage.setItem('cg_kitchen_paused', kitchenPaused);
@@ -431,6 +473,7 @@ function toggleKitchenPause() {
   }
   updateKitchenWaitUI();
 }
+
 function renderProducts() {
   const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
   const container = document.getElementById('products-container');
@@ -479,15 +522,18 @@ function renderProducts() {
     `;
   }).join('');
 }
+
 function setCategory(cat, el) {
   currentCategory = cat;
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
   if (el) el.classList.add('active');
   renderProducts();
 }
+
 function onSearchInput() {
   renderProducts();
 }
+
 function toggleFav(e, id) {
   e.stopPropagation();
   if (favorites.includes(id)) {
@@ -499,6 +545,7 @@ function toggleFav(e, id) {
   localStorage.setItem('cg_favs', JSON.stringify(favorites));
   renderProducts();
 }
+
 function openProductModal(id) {
   modalProduct = products.find(p => p.id === id);
   if (!modalProduct || !modalProduct.available) return;
@@ -520,6 +567,7 @@ function openProductModal(id) {
   updateModalTotal();
   document.getElementById('modal-product').classList.add('open');
 }
+
 function selectSize(size, extra) {
   modalSelectedSize = size;
   modalExtraPrice = extra;
@@ -527,16 +575,19 @@ function selectSize(size, extra) {
   document.getElementById('opt-size-lg').classList.toggle('selected', size === 'Grande');
   updateModalTotal();
 }
+
 function updateModalQty(delta) {
   modalQty = Math.max(1, modalQty + delta);
   document.getElementById('modal-qty-val').textContent = modalQty;
   updateModalTotal();
 }
+
 function updateModalTotal() {
   if (!modalProduct) return;
   const unit = modalProduct.price + modalExtraPrice;
   document.getElementById('modal-btn-total').textContent = fmtCOP(unit * modalQty);
 }
+
 function addModalItemToCart() {
   if (!modalProduct) return;
   const isCoffee = modalProduct.cat === 'Bebidas calientes';
@@ -568,11 +619,13 @@ function addModalItemToCart() {
   document.getElementById('modal-product').classList.remove('open');
   showToast('Agregado al pedido');
 }
+
 function closeModalOnBackdrop(e, id) {
   if (e.target.id === id) {
     document.getElementById(id).classList.remove('open');
   }
 }
+
 function renderStaticNequiQR() {
   const container = document.getElementById('nequi-static-qr');
   if (!container || container.innerHTML) return;
@@ -586,14 +639,20 @@ function renderStaticNequiQR() {
     });
   } catch (e) {}
 }
+
+function getActiveOrderCount() {
+  const studentName = currentUser ? currentUser.name : '';
+  return orders.filter(o => o.student === studentName && (o.status === 'recibido' || o.status === 'preparando' || o.status === 'listo' || o.status === 'pendiente_pago')).length;
+}
+
 function renderCart() {
   const wrapper = document.getElementById('cart-items-wrapper');
   const empty = document.getElementById('cart-empty-message');
   const checkout = document.getElementById('cart-checkout-section');
   const warning = document.getElementById('cart-active-order-warning');
   const confirmBtn = document.getElementById('btn-confirm-order');
-  const studentName = currentUser ? currentUser.name : '';
-  const hasActiveOrder = orders.some(o => o.student === studentName && (o.status === 'recibido' || o.status === 'preparando' || o.status === 'listo' || o.status === 'pendiente_pago'));
+  const activeCount = getActiveOrderCount();
+  const hasReachedLimit = activeCount >= MAX_ACTIVE_ORDERS;
   if (cart.length === 0) {
     wrapper.innerHTML = '';
     empty.style.display = 'block';
@@ -614,13 +673,14 @@ function renderCart() {
     nequiOptionCard.style.opacity = '1';
     nequiOptionCard.style.pointerEvents = 'auto';
   }
-  if (hasActiveOrder) {
+  if (hasReachedLimit) {
     warning.style.display = 'block';
+    warning.innerHTML = `<strong>Límite de pedidos activos:</strong> Ya tienes ${activeCount} pedido(s) en proceso (máximo ${MAX_ACTIVE_ORDERS}). Retira o espera a que se completen antes de hacer otro.`;
     confirmBtn.disabled = true;
-    confirmBtn.textContent = 'Debes retirar tu pedido anterior primero';
+    confirmBtn.textContent = `Máximo ${MAX_ACTIVE_ORDERS} pedidos activos alcanzado`;
   } else if (kitchenPaused) {
     warning.style.display = 'block';
-    warning.textContent = 'Aviso: La cocina está en pausa momentánea. Por favor espera unos minutos para confirmar tu orden.';
+    warning.innerHTML = 'Aviso: La cocina está en pausa momentánea. Por favor espera unos minutos para confirmar tu orden.';
     confirmBtn.disabled = true;
     confirmBtn.textContent = 'Cocina pausada por alta demanda';
   } else {
@@ -659,21 +719,25 @@ function renderCart() {
   document.getElementById('sum-total').textContent = fmtCOP(subtotal);
   document.getElementById('nequi-transfer-amount').textContent = fmtCOP(subtotal);
 }
+
 function updateCartQty(idx, delta) {
   cart[idx].qty = Math.max(1, cart[idx].qty + delta);
   saveCart();
   renderCart();
   updateCartBadge();
 }
+
 function removeCartItem(idx) {
   cart.splice(idx, 1);
   saveCart();
   renderCart();
   updateCartBadge();
 }
+
 function saveCart() {
   localStorage.setItem('cg_cart', JSON.stringify(cart));
 }
+
 function updateCartBadge() {
   const total = cart.reduce((acc, i) => acc + i.qty, 0);
   const dot = document.getElementById('cart-badge-dot');
@@ -684,12 +748,14 @@ function updateCartBadge() {
     dot.style.display = 'none';
   }
 }
+
 function setOrderType(type) {
   orderType = type;
   document.getElementById('opt-takeaway').classList.toggle('selected', type === 'takeaway');
   document.getElementById('opt-dinein').classList.toggle('selected', type === 'dinein');
   document.getElementById('table-number-row').style.display = type === 'dinein' ? 'block' : 'none';
 }
+
 function setPaymentMethod(method) {
   paymentMethod = method;
   document.getElementById('opt-pay-cash').classList.toggle('selected', method === 'cash');
@@ -704,6 +770,7 @@ function setPaymentMethod(method) {
     policyNote.textContent = '* Para pago en efectivo: Cuentas con 15 minutos para reclamar tu orden una vez lista en barra.';
   }
 }
+
 function toggleNequiStep2(isChecked) {
   const step2Box = document.getElementById('nequi-step2-box');
   step2Box.style.display = isChecked ? 'block' : 'none';
@@ -714,6 +781,7 @@ function toggleNequiStep2(isChecked) {
     prev.src = '';
   }
 }
+
 function handleProofFileSelected(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -727,6 +795,7 @@ function handleProofFileSelected(event) {
   };
   reader.readAsDataURL(file);
 }
+
 function generateSimulatedNequiProof() {
   const total = cart.reduce((acc, i) => acc + i.price * i.qty, 0);
   const ref = 'M' + Math.floor(1000000 + Math.random() * 9000000);
@@ -778,16 +847,39 @@ function generateSimulatedNequiProof() {
   document.getElementById('nequi-ref-input').value = ref;
   showToast('Captura Nequi simulada generada: ' + ref);
 }
+
+function estimateOrderPrepTime(order) {
+  let maxPrepTime = 0;
+  order.items.forEach(item => {
+    const product = products.find(p => p.name === item.name);
+    const itemPrepTime = product ? product.prepTime : 5;
+    if (itemPrepTime > maxPrepTime) maxPrepTime = itemPrepTime;
+  });
+  return maxPrepTime;
+}
+
+function getPrepTimeLabel(mins) {
+  if (mins <= 3) return { text: 'Rápido (~' + mins + ' min)', cls: 'prep-fast' };
+  if (mins <= 8) return { text: 'Medio (~' + mins + ' min)', cls: 'prep-medium' };
+  return { text: 'Demorado (~' + mins + ' min)', cls: 'prep-slow' };
+}
+
+function getQueuePosition(orderId) {
+  const activeStatuses = ['pendiente_pago', 'recibido', 'preparando'];
+  const activeOrders = orders.filter(o => activeStatuses.includes(o.status));
+  const position = activeOrders.findIndex(o => o.id === orderId) + 1;
+  return { position, total: activeOrders.length };
+}
+
 function confirmOrder() {
   if (cart.length === 0) return;
   if (kitchenPaused) {
     showToast('La cocina está temporalmente pausada por alta demanda');
     return;
   }
-  const studentName = currentUser ? currentUser.name : 'Estudiante';
-  const hasActiveOrder = orders.some(o => o.student === studentName && (o.status === 'recibido' || o.status === 'preparando' || o.status === 'listo' || o.status === 'pendiente_pago'));
-  if (hasActiveOrder) {
-    showToast('Ya tienes una orden en proceso. Retírala primero.');
+  const activeCount = getActiveOrderCount();
+  if (activeCount >= MAX_ACTIVE_ORDERS) {
+    showToast(`Ya tienes ${MAX_ACTIVE_ORDERS} pedidos activos. Retira uno primero.`);
     return;
   }
   let nequiRef = '';
@@ -814,7 +906,7 @@ function confirmOrder() {
   const newOrder = {
     id,
     date: 'Hoy, ' + new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
-    student: studentName,
+    student: currentUser ? currentUser.name : 'Estudiante',
     orderType,
     tableNumber: table,
     pickupTime,
@@ -826,7 +918,8 @@ function confirmOrder() {
     status: initialStatus,
     token: 'tok_' + Math.random().toString(36).slice(2, 8),
     readyAt: null,
-    expiresAt: null
+    expiresAt: null,
+    rejectionReason: null
   };
   orders.unshift(newOrder);
   localStorage.setItem('cg_orders', JSON.stringify(orders));
@@ -848,6 +941,7 @@ function confirmOrder() {
     showToast('Orden ' + id + ' enviada a cocina');
   }
 }
+
 function showTicket(order) {
   document.getElementById('tk-code').textContent = order.id;
   document.getElementById('tk-student').textContent = order.student;
@@ -870,7 +964,25 @@ function showTicket(order) {
   const timerVal = document.getElementById('pt-timer-val');
   const timerDesc = document.getElementById('pt-timer-desc');
   const proofHolder = document.getElementById('tk-proof-img-holder');
+  const queueInfo = document.getElementById('tk-queue-info');
+  const rejectionBox = document.getElementById('tk-rejection-box');
   if (activeTimerInterval) clearInterval(activeTimerInterval);
+
+  const queueData = getQueuePosition(order.id);
+  if (queueData.position > 0 && order.status !== 'entregado' && order.status !== 'no_reclamado' && order.status !== 'sancionado' && order.status !== 'rechazado') {
+    queueInfo.style.display = 'block';
+    queueInfo.textContent = `Eres el pedido #${queueData.position} de ${queueData.total} en cola`;
+  } else {
+    queueInfo.style.display = 'none';
+  }
+
+  if (order.rejectionReason && (order.status === 'rechazado' || order.status === 'sancionado')) {
+    rejectionBox.style.display = 'block';
+    rejectionBox.innerHTML = `<strong>Motivo del rechazo:</strong> ${order.rejectionReason}`;
+  } else {
+    rejectionBox.style.display = 'none';
+  }
+
   if (order.status === 'pendiente_pago') {
     sb.className = 'order-status-badge st-pendiente_pago';
     sb.textContent = 'POR VALIDAR NEQUI';
@@ -888,7 +1000,16 @@ function showTicket(order) {
   } else {
     nequiNotice.style.display = 'none';
     sb.className = 'order-status-badge st-' + order.status;
-    sb.textContent = order.status === 'no_reclamado' ? 'NO RECLAMADO' : (order.status === 'sancionado' ? 'SANCIONADO' : order.status.toUpperCase());
+    const statusLabels = {
+      recibido: 'RECIBIDO',
+      preparando: 'PREPARANDO',
+      listo: 'LISTO',
+      entregado: 'ENTREGADO',
+      no_reclamado: 'NO RECLAMADO',
+      sancionado: 'SANCIONADO',
+      rechazado: 'RECHAZADO'
+    };
+    sb.textContent = statusLabels[order.status] || order.status.toUpperCase();
   }
   if (order.status === 'listo' && order.expiresAt) {
     timerBox.style.display = 'block';
@@ -917,6 +1038,12 @@ function showTicket(order) {
     timerTitle.textContent = 'Orden anulada o vencida';
     timerVal.textContent = order.status === 'sancionado' ? 'SANCIONADA' : 'VENCIDA';
     timerDesc.textContent = 'Este pedido no se procesó por sanción o abandono de la orden.';
+  } else if (order.status === 'rechazado') {
+    timerBox.style.display = 'block';
+    timerBox.className = 'pickup-timer-box expired';
+    timerTitle.textContent = 'Pedido rechazado por cocina';
+    timerVal.textContent = 'RECHAZADO';
+    timerDesc.textContent = order.rejectionReason || 'El personal de cocina rechazó este pedido.';
   } else if (order.status !== 'pendiente_pago') {
     timerBox.style.display = 'none';
   }
@@ -940,6 +1067,40 @@ function showTicket(order) {
     ${i.details ? `<div style="font-size:11px; color:var(--text-muted); margin-bottom:4px">${i.details}</div>` : ''}
   `).join('');
 }
+
+function reorderFromHistory(orderId) {
+  const o = orders.find(x => x.id === orderId);
+  if (!o) return;
+  const activeCount = getActiveOrderCount();
+  if (activeCount >= MAX_ACTIVE_ORDERS) {
+    showToast(`Ya tienes ${MAX_ACTIVE_ORDERS} pedidos activos. Retira uno primero.`);
+    return;
+  }
+  o.items.forEach(item => {
+    const product = products.find(p => p.name === item.name);
+    if (product && product.available) {
+      const existing = cart.find(c => c.name === item.name && c.details === item.details);
+      if (existing) {
+        existing.qty += item.qty;
+      } else {
+        cart.push({
+          id: product.id,
+          image: product.image,
+          name: item.name,
+          price: item.price,
+          qty: item.qty,
+          details: item.details || ''
+        });
+      }
+    }
+  });
+  saveCart();
+  updateCartBadge();
+  renderCart();
+  switchView('cart');
+  showToast('Productos del pedido ' + orderId + ' agregados al carrito');
+}
+
 function renderOrders() {
   const container = document.getElementById('orders-feed');
   if (orders.length === 0) {
@@ -956,24 +1117,55 @@ function renderOrders() {
     listo: 'Listo para reclamar en barra',
     entregado: 'Entregado',
     no_reclamado: 'No reclamado / Vencido',
-    sancionado: 'Anulado por sanción'
+    sancionado: 'Anulado por sanción',
+    rechazado: 'Rechazado por cocina'
   };
-  container.innerHTML = orders.map(o => `
+  container.innerHTML = orders.map(o => {
+    const isFinished = o.status === 'entregado' || o.status === 'no_reclamado' || o.status === 'sancionado' || o.status === 'rechazado';
+    const isActive = !isFinished;
+    const queueData = isActive ? getQueuePosition(o.id) : null;
+
+    let queueHtml = '';
+    if (queueData && queueData.position > 0) {
+      queueHtml = `<div class="queue-position-badge">Posición en cola: #${queueData.position} de ${queueData.total}</div>`;
+    }
+
+    let rejectionHtml = '';
+    if (o.rejectionReason && (o.status === 'rechazado' || o.status === 'sancionado')) {
+      rejectionHtml = `<div style="font-size:11px; color:var(--danger); background:var(--danger-bg); padding:6px 10px; border-radius:var(--radius-sm); margin-bottom:8px"><strong>Motivo:</strong> ${o.rejectionReason}</div>`;
+    }
+
+    let reorderBtn = '';
+    if (isFinished && o.status !== 'sancionado') {
+      reorderBtn = `<button class="btn-pill" style="background:var(--accent-light); color:var(--primary); border:1px solid var(--primary);" onclick="reorderFromHistory('${o.id}')">
+        <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+        Repetir pedido
+      </button>`;
+    }
+
+    return `
     <div class="order-entry">
       <div class="order-entry-head">
         <span style="font-size:14px; font-weight:700">${o.id} · ${o.date}</span>
         <span class="order-status-badge st-${o.status}">${statusNames[o.status] || o.status}</span>
       </div>
+      ${queueHtml}
+      ${rejectionHtml}
       <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px">
         ${o.items.map(i => `${i.name} ×${i.qty}`).join(' · ')}
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:center">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap">
         <span style="font-size:13px; font-weight:700">${fmtCOP(o.total)}</span>
-        <button class="btn-pill" onclick="viewOrderTicket('${o.id}')">Ver Ticket QR</button>
+        <div style="display:flex; gap:6px; flex-wrap:wrap">
+          <button class="btn-pill" onclick="viewOrderTicket('${o.id}')">Ver Ticket QR</button>
+          ${reorderBtn}
+        </div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
+
 function viewOrderTicket(id) {
   const o = orders.find(x => x.id === id);
   if (o) {
@@ -981,23 +1173,40 @@ function viewOrderTicket(id) {
     switchView('ticket');
   }
 }
+
+function setStaffSort(mode) {
+  staffSortMode = mode;
+  document.getElementById('sort-arrival').classList.toggle('active', mode === 'arrival');
+  document.getElementById('sort-priority').classList.toggle('active', mode === 'priority');
+  renderStaffPanel();
+}
+
 function renderStaffPanel() {
-  const activeOrders = orders.filter(o => o.status !== 'entregado' && o.status !== 'no_reclamado' && o.status !== 'sancionado');
+  const activeOrders = orders.filter(o => o.status !== 'entregado' && o.status !== 'no_reclamado' && o.status !== 'sancionado' && o.status !== 'rechazado');
   const readyOrders = orders.filter(o => o.status === 'listo');
   const totalToday = orders.filter(o => o.status === 'entregado').reduce((acc, o) => acc + o.total, 0);
   document.getElementById('stat-active-count').textContent = activeOrders.length;
   document.getElementById('stat-ready-count').textContent = readyOrders.length;
   document.getElementById('stat-total-today').textContent = fmtCOP(totalToday);
   updateKitchenWaitUI();
+
+  let sortedOrders = [...activeOrders];
+  if (staffSortMode === 'priority') {
+    sortedOrders.sort((a, b) => estimateOrderPrepTime(a) - estimateOrderPrepTime(b));
+  }
+
   const container = document.getElementById('staff-orders-list');
-  if (activeOrders.length === 0) {
+  if (sortedOrders.length === 0) {
     container.innerHTML = `
       <div style="text-align:center; padding:30px 18px; color:var(--text-muted)">
         <p style="font-weight:700">No hay órdenes pendientes en este momento.</p>
       </div>`;
     return;
   }
-  container.innerHTML = activeOrders.map(o => {
+  container.innerHTML = sortedOrders.map(o => {
+    const prepTime = estimateOrderPrepTime(o);
+    const prepLabel = getPrepTimeLabel(prepTime);
+
     if (o.status === 'pendiente_pago') {
       return `
         <div class="order-entry" style="background:var(--warning-bg); border:1px solid var(--warning); border-radius:var(--radius-sm); margin:10px 18px;">
@@ -1007,6 +1216,9 @@ function renderStaffPanel() {
               <span style="font-size:12px; color:var(--text-muted)">(${o.student})</span>
             </div>
             <span class="order-status-badge st-pendiente_pago">POR VALIDAR NEQUI</span>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center; margin:4px 0 8px;">
+            <span class="prep-time-badge ${prepLabel.cls}">${prepLabel.text}</span>
           </div>
           <div style="display:flex; gap:12px; align-items:center; margin: 8px 0;">
             ${o.proofImage ? `
@@ -1027,8 +1239,11 @@ function renderStaffPanel() {
             <button class="btn-action" style="margin-top:0; padding:8px 12px; font-size:12px; background:var(--primary); color:#fff; flex:1;" onclick="verifyNequiAndStartPrep('${o.id}')">
               Aprobar Pago y Empezar a Cocinar
             </button>
+            <button class="btn-secondary-action" style="margin-top:0; padding:8px 12px; font-size:12px; width:auto; color:var(--danger); border-color:var(--danger);" onclick="openRejectModal('${o.id}', '${o.student}')">
+              Rechazar
+            </button>
             <button class="btn-secondary-action" style="margin-top:0; padding:8px 12px; font-size:12px; width:auto; color:var(--danger); border-color:var(--danger);" onclick="openStrikeModal('${o.id}', '${o.student}')">
-              Reportar / Sancionar
+              Sancionar
             </button>
           </div>
         </div>
@@ -1047,6 +1262,9 @@ function renderStaffPanel() {
             <span style="font-size:12px; color:var(--text-muted)">(${o.student})</span>
           </div>
           <span class="order-status-badge st-${o.status}">${o.status.toUpperCase()}</span>
+        </div>
+        <div style="display:flex; gap:6px; align-items:center; margin:4px 0 8px;">
+          <span class="prep-time-badge ${prepLabel.cls}">${prepLabel.text}</span>
         </div>
         <div style="font-size:12px; margin: 4px 0 8px; line-height:1.5;">
           ${o.items.map(i => `• <strong>${i.name} × ${i.qty}</strong> ${i.details ? `<span style="color:var(--text-muted)">(${i.details})</span>` : ''}`).join('<br>')}
@@ -1067,12 +1285,36 @@ function renderStaffPanel() {
       </div>
     `;
   }).join('');
+
+  renderStrikeHistory();
 }
+
+function renderStrikeHistory() {
+  const container = document.getElementById('staff-strike-history');
+  if (!container) return;
+  if (strikeHistory.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:20px; font-size:12px; color:var(--text-muted)">No hay sanciones registradas</div>';
+    return;
+  }
+  container.innerHTML = strikeHistory.map(s => `
+    <div style="padding:10px 14px; border-bottom:1px solid var(--border); font-size:12px; line-height:1.5;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong style="color:var(--danger)">${s.orderId}</strong>
+        <span style="font-size:11px; color:var(--text-muted)">${s.date}</span>
+      </div>
+      <div>Estudiante: <strong>${s.student}</strong></div>
+      <div>Motivo: ${s.reason}</div>
+      <div>Duración: ${s.duration}</div>
+    </div>
+  `).join('');
+}
+
 function openProofViewer(imgUrl, orderId, studentName) {
   document.getElementById('modal-viewer-img').src = imgUrl;
   document.getElementById('modal-viewer-info').textContent = `Orden ${orderId} · ${studentName}`;
   document.getElementById('modal-proof-viewer').classList.add('open');
 }
+
 function verifyNequiAndStartPrep(id) {
   const o = orders.find(x => x.id === id);
   if (o) {
@@ -1085,15 +1327,47 @@ function verifyNequiAndStartPrep(id) {
     showToast(`Pago verificado para ${id}. ¡Iniciando preparación en cocina!`);
   }
 }
+
+function openRejectModal(orderId, studentName) {
+  document.getElementById('modal-reject-target').textContent = `Orden: ${orderId} · Estudiante: ${studentName}`;
+  document.getElementById('modal-reject').dataset.orderId = orderId;
+  document.getElementById('reject-reason-input').value = '';
+  document.getElementById('modal-reject').classList.add('open');
+}
+
+function confirmRejectOrder() {
+  const modal = document.getElementById('modal-reject');
+  const orderId = modal.dataset.orderId;
+  const reason = document.getElementById('reject-reason-input').value.trim();
+  if (!reason) {
+    showToast('Escribe el motivo del rechazo');
+    return;
+  }
+  const o = orders.find(x => x.id === orderId);
+  if (o) {
+    o.status = 'rechazado';
+    o.rejectionReason = reason;
+    localStorage.setItem('cg_orders', JSON.stringify(orders));
+  }
+  modal.classList.remove('open');
+  renderStaffPanel();
+  renderOrders();
+  renderCart();
+  updateKitchenWaitUI();
+  showToast(`Orden ${orderId} rechazada: ${reason}`);
+}
+
 function openStrikeModal(orderId, studentName) {
   targetStrikeOrderId = orderId;
   document.getElementById('modal-strike-target').textContent = `Orden: ${orderId} · Estudiante: ${studentName}`;
   document.getElementById('modal-strike').classList.add('open');
 }
+
 function confirmApplyStrike() {
   const durationSelect = document.getElementById('strike-duration-select').value;
   const reason = document.getElementById('strike-reason-select').value;
   let durationMs = 12 * 60 * 60 * 1000;
+  const durationLabels = { '12h': '12 Horas', '24h': '24 Horas', '3d': '3 Días', '7d': '7 Días', '14d': '14 Días' };
   if (durationSelect === '24h') durationMs = 24 * 60 * 60 * 1000;
   if (durationSelect === '3d') durationMs = 3 * 24 * 60 * 60 * 1000;
   if (durationSelect === '7d') durationMs = 7 * 24 * 60 * 60 * 1000;
@@ -1105,10 +1379,22 @@ function confirmApplyStrike() {
   localStorage.setItem('cg_strike_until', userStrikeUntil);
   localStorage.setItem('cg_strike_reason', userStrikeReason);
   const o = orders.find(x => x.id === targetStrikeOrderId);
+  const studentName = o ? o.student : 'Desconocido';
   if (o) {
     o.status = 'sancionado';
+    o.rejectionReason = reason;
     localStorage.setItem('cg_orders', JSON.stringify(orders));
   }
+
+  strikeHistory.unshift({
+    orderId: targetStrikeOrderId,
+    student: studentName,
+    reason: reason,
+    duration: durationLabels[durationSelect] || durationSelect,
+    date: new Date().toLocaleString('es-CO')
+  });
+  localStorage.setItem('cg_strike_history', JSON.stringify(strikeHistory));
+
   document.getElementById('modal-strike').classList.remove('open');
   checkStrikeActiveStatus();
   renderReputationBadge();
@@ -1118,6 +1404,7 @@ function confirmApplyStrike() {
   updateKitchenWaitUI();
   showToast(`Sanción aplicada (${durationSelect}) y orden cancelada.`);
 }
+
 function advanceOrderStatus(id, newStatus) {
   const o = orders.find(x => x.id === id);
   if (o) {
@@ -1134,6 +1421,7 @@ function advanceOrderStatus(id, newStatus) {
     showToast(`Orden ${id} actualizada a: ${newStatus.toUpperCase()}`);
   }
 }
+
 function markOrderNoShow(id) {
   const o = orders.find(x => x.id === id);
   if (o) {
@@ -1149,6 +1437,7 @@ function markOrderNoShow(id) {
     showToast(`Orden ${id} marcada como NO reclamada.`);
   }
 }
+
 function quickValidateStaffCode() {
   const input = document.getElementById('staff-code-input');
   const code = input.value.trim().toUpperCase();
@@ -1175,6 +1464,7 @@ function quickValidateStaffCode() {
   updateKitchenWaitUI();
   showToast(`${code} entregada con éxito`);
 }
+
 function switchView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const target = document.getElementById('view-' + name);
@@ -1187,18 +1477,22 @@ function switchView(name) {
   if (name === 'staff') renderStaffPanel();
   if (name === 'cart') renderCart();
 }
+
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const newTheme = isDark ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', newTheme);
   localStorage.setItem('cg_theme', newTheme);
 }
+
 if (localStorage.getItem('cg_theme') === 'dark') {
   document.documentElement.setAttribute('data-theme', 'dark');
 }
+
 function fmtCOP(n) {
   return '$' + Number(n).toLocaleString('es-CO');
 }
+
 let _toastTimeout;
 function showToast(msg) {
   const el = document.getElementById('toast');
@@ -1207,4 +1501,5 @@ function showToast(msg) {
   clearTimeout(_toastTimeout);
   _toastTimeout = setTimeout(() => el.classList.remove('show'), 2400);
 }
+
 initAuth();
