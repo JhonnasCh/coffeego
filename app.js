@@ -208,10 +208,13 @@ let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
     isoDate: getLocalDateISO(0),
     date: 'Hoy, 10:15 AM',
     student: 'Estudiante Demo',
+    studentCode: '20240001',
     orderType: 'takeaway',
     tableNumber: '',
     pickupTime: 'Lo antes posible',
     paymentMethod: 'Nequi',
+    cashBill: null,
+    cashChange: 0,
     nequiRef: 'M7829104',
     proofImage: '',
     items: [
@@ -230,10 +233,13 @@ let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
     isoDate: getLocalDateISO(0),
     date: 'Hoy, 09:50 AM',
     student: 'Estudiante Demo',
+    studentCode: '20240001',
     orderType: 'takeaway',
     tableNumber: '',
     pickupTime: 'Lo antes posible',
     paymentMethod: 'Efectivo en caja',
+    cashBill: 10000,
+    cashChange: 6200,
     nequiRef: '',
     proofImage: '',
     items: [
@@ -251,10 +257,13 @@ let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
     isoDate: getLocalDateISO(0),
     date: 'Hoy, 09:20 AM',
     student: 'Estudiante Demo',
+    studentCode: '20240001',
     orderType: 'takeaway',
     tableNumber: '',
     pickupTime: 'Lo antes posible',
     paymentMethod: 'Efectivo en caja',
+    cashBill: 'exact',
+    cashChange: 0,
     nequiRef: '',
     proofImage: '',
     items: [
@@ -273,10 +282,13 @@ let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
     isoDate: getLocalDateISO(-1),
     date: 'Ayer, 11:30 AM',
     student: 'Estudiante Demo',
+    studentCode: '20240001',
     orderType: 'takeaway',
     tableNumber: '',
     pickupTime: 'En 30 minutos',
     paymentMethod: 'Nequi',
+    cashBill: null,
+    cashChange: 0,
     nequiRef: 'M4481920',
     proofImage: '',
     items: [
@@ -294,10 +306,13 @@ let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
     isoDate: getLocalDateISO(-1),
     date: 'Ayer, 01:10 PM',
     student: 'Estudiante Demo',
+    studentCode: '20240001',
     orderType: 'dinein',
     tableNumber: 'Mesa 4',
     pickupTime: 'Lo antes posible',
     paymentMethod: 'Efectivo en caja',
+    cashBill: 20000,
+    cashChange: 10500,
     nequiRef: '',
     proofImage: '',
     items: [
@@ -315,10 +330,13 @@ let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
     isoDate: getLocalDateISO(-1),
     date: 'Ayer, 04:15 PM',
     student: 'Estudiante Demo',
+    studentCode: '20240001',
     orderType: 'takeaway',
     tableNumber: '',
     pickupTime: 'Lo antes posible',
     paymentMethod: 'Efectivo en caja',
+    cashBill: 'exact',
+    cashChange: 0,
     nequiRef: '',
     proofImage: '',
     items: [
@@ -336,6 +354,7 @@ let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
 if (Array.isArray(orders)) {
   orders.forEach(o => {
     if (!o.isoDate) o.isoDate = getLocalDateISO(0);
+    if (!o.studentCode) o.studentCode = '20240001';
     if (o.student && (o.student.toLowerCase().includes('charris') || o.student.toLowerCase().includes('jhonnas'))) {
       o.student = 'Estudiante Demo';
     }
@@ -357,6 +376,7 @@ let currentCategory = 'Todos';
 let currentRole = 'student';
 let orderType = 'takeaway';
 let paymentMethod = 'cash';
+let selectedCashBill = 'exact';
 let currentUploadedProofDataUrl = '';
 let targetStrikeOrderId = null;
 let modalProduct = null;
@@ -369,6 +389,8 @@ let currentStaffSubtab = 'queue';
 let selectedCalendarDate = getLocalDateISO(0);
 let selectedCalendarFilter = 'all';
 let lastNotifiedOrderId = null;
+let selectedRatingStars = 5;
+let selectedRateTags = [];
 
 function playNotificationSound() {
   try {
@@ -554,6 +576,7 @@ function applyUserSession(user) {
   renderReputationBadge();
   updateRoleUI();
   updateKitchenWaitUI();
+  updateStudentSpendingUI();
   renderProducts();
   renderCart();
   renderOrders();
@@ -564,6 +587,7 @@ function applyUserSession(user) {
     switchView('staff');
   } else {
     switchView('menu');
+    setTimeout(checkRatingPromptProbability, 3500);
   }
 }
 
@@ -581,6 +605,7 @@ function toggleRoleFromBadge() {
     localStorage.setItem('cg_session', JSON.stringify(currentUser));
   }
   updateRoleUI();
+  updateStudentSpendingUI();
   if (currentRole === 'staff') {
     switchView('staff');
     showToast('Modo Personal de Cafetería');
@@ -628,6 +653,25 @@ function renderReputationBadge() {
   } else {
     repEl.className = 'reputation-badge danger';
     repEl.textContent = `${userStrikes} Faltas`;
+  }
+}
+
+function calculateStudentSpending() {
+  const studentName = currentUser ? currentUser.name : 'Estudiante Demo';
+  return orders
+    .filter(o => o.student === studentName && o.status !== 'rechazado' && o.status !== 'sancionado')
+    .reduce((acc, o) => acc + o.total, 0);
+}
+
+function updateStudentSpendingUI() {
+  const spendingEl = document.getElementById('display-spending');
+  if (!spendingEl) return;
+  if (currentRole === 'student') {
+    const total = calculateStudentSpending();
+    spendingEl.textContent = `Gasto acumulado: ${fmtCOP(total)}`;
+    spendingEl.style.display = 'inline-block';
+  } else {
+    spendingEl.style.display = 'none';
   }
 }
 
@@ -893,6 +937,50 @@ function getActiveOrderCount() {
   return orders.filter(o => o.student === studentName && (o.status === 'recibido' || o.status === 'preparando' || o.status === 'listo' || o.status === 'pendiente_pago')).length;
 }
 
+function selectCashBill(val) {
+  const subtotal = cart.reduce((acc, i) => acc + i.price * i.qty, 0);
+  if (val !== 'exact' && val < subtotal) {
+    showToast(`El billete de ${fmtCOP(val)} no cubre el total de ${fmtCOP(subtotal)}`);
+    return;
+  }
+  selectedCashBill = val;
+  updateCashBillUI();
+}
+
+function updateCashBillUI() {
+  const subtotal = cart.reduce((acc, i) => acc + i.price * i.qty, 0);
+  const cardExact = document.getElementById('opt-bill-exact');
+  const card10k = document.getElementById('opt-bill-10k');
+  const card20k = document.getElementById('opt-bill-20k');
+  const card50k = document.getElementById('opt-bill-50k');
+  const feedback = document.getElementById('cash-bill-feedback');
+
+  if (cardExact) cardExact.classList.toggle('selected', selectedCashBill === 'exact');
+  if (card10k) {
+    card10k.classList.toggle('selected', selectedCashBill === 10000);
+    card10k.style.opacity = (subtotal > 10000 && subtotal > 0) ? '0.4' : '1';
+  }
+  if (card20k) {
+    card20k.classList.toggle('selected', selectedCashBill === 20000);
+    card20k.style.opacity = (subtotal > 20000 && subtotal > 0) ? '0.4' : '1';
+  }
+  if (card50k) {
+    card50k.classList.toggle('selected', selectedCashBill === 50000);
+    card50k.style.opacity = (subtotal > 50000 && subtotal > 0) ? '0.4' : '1';
+  }
+
+  if (feedback) {
+    if (selectedCashBill === 'exact') {
+      feedback.textContent = 'Pagarás el valor exacto en barra (sin cambio necesario).';
+      feedback.style.color = 'var(--primary)';
+    } else {
+      const change = Math.max(0, selectedCashBill - subtotal);
+      feedback.textContent = `Pagas con billete de ${fmtCOP(selectedCashBill)} · Cambio a recibir: ${fmtCOP(change)}`;
+      feedback.style.color = 'var(--accent)';
+    }
+  }
+}
+
 function renderCart() {
   const wrapper = document.getElementById('cart-items-wrapper');
   const empty = document.getElementById('cart-empty-message');
@@ -966,6 +1054,7 @@ function renderCart() {
   document.getElementById('sum-subtotal').textContent = fmtCOP(subtotal);
   document.getElementById('sum-total').textContent = fmtCOP(subtotal);
   document.getElementById('nequi-transfer-amount').textContent = fmtCOP(subtotal);
+  updateCashBillUI();
 }
 
 function updateCartQty(idx, delta) {
@@ -1009,13 +1098,17 @@ function setPaymentMethod(method) {
   document.getElementById('opt-pay-cash').classList.toggle('selected', method === 'cash');
   document.getElementById('opt-pay-transfer').classList.toggle('selected', method === 'transfer');
   const nequiBox = document.getElementById('nequi-info-box');
+  const cashBox = document.getElementById('cash-bill-box');
   const policyNote = document.getElementById('payment-policy-note');
   if (method === 'transfer') {
     nequiBox.style.display = 'block';
+    if (cashBox) cashBox.style.display = 'none';
     policyNote.textContent = '* Para pagos con Nequi: Cocina iniciará la preparación cuando el personal valide la captura de tu transferencia.';
   } else {
     nequiBox.style.display = 'none';
+    if (cashBox) cashBox.style.display = 'block';
     policyNote.textContent = '* Para pago en efectivo: Cuentas con 15 minutos para reclamar tu orden una vez lista en barra.';
+    updateCashBillUI();
   }
 }
 
@@ -1130,9 +1223,13 @@ function confirmOrder() {
     showToast(`Ya tienes ${MAX_ACTIVE_ORDERS} pedidos activos. Retira uno primero.`);
     return;
   }
+  const total = cart.reduce((acc, i) => acc + i.price * i.qty, 0);
   let nequiRef = '';
   let initialStatus = 'recibido';
   let proofImage = '';
+  let cashBill = null;
+  let cashChange = 0;
+
   if (paymentMethod === 'transfer') {
     const chkSent = document.getElementById('chk-nequi-sent').checked;
     if (!chkSent) {
@@ -1146,24 +1243,34 @@ function confirmOrder() {
     nequiRef = document.getElementById('nequi-ref-input').value.trim().toUpperCase() || ('REF-' + Math.floor(100000 + Math.random() * 900000));
     proofImage = currentUploadedProofDataUrl;
     initialStatus = 'pendiente_pago';
+  } else {
+    cashBill = selectedCashBill;
+    cashChange = (selectedCashBill === 'exact' ? 0 : Math.max(0, selectedCashBill - total));
   }
+
   const orderNum = orders.length + 1;
   const id = 'CGO-' + String(orderNum).padStart(4, '0');
   const table = orderType === 'dinein' ? (document.getElementById('table-number-input').value.trim() || 'En mesa') : '';
   const pickupTime = document.getElementById('cart-pickup-time').value;
+  const studentName = currentUser ? currentUser.name : 'Estudiante Demo';
+  const studentCode = currentUser ? currentUser.code : '20240001';
+
   const newOrder = {
     id,
     isoDate: getLocalDateISO(0),
     date: 'Hoy, ' + new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
-    student: currentUser ? currentUser.name : 'Estudiante Demo',
+    student: studentName,
+    studentCode: studentCode,
     orderType,
     tableNumber: table,
     pickupTime,
     paymentMethod: paymentMethod === 'transfer' ? 'Nequi' : 'Efectivo en caja',
+    cashBill,
+    cashChange,
     nequiRef,
     proofImage,
     items: [...cart],
-    total: cart.reduce((acc, i) => acc + i.price * i.qty, 0),
+    total,
     status: initialStatus,
     token: 'tok_' + Math.random().toString(36).slice(2, 8),
     readyAt: null,
@@ -1182,6 +1289,7 @@ function confirmOrder() {
   updateCartBadge();
   renderCart();
   updateKitchenWaitUI();
+  updateStudentSpendingUI();
   showTicket(newOrder);
   switchView('ticket');
   if (initialStatus === 'pendiente_pago') {
@@ -1189,16 +1297,31 @@ function confirmOrder() {
   } else {
     showToast('Orden ' + id + ' enviada a cocina');
   }
+  checkRatingPromptProbability();
 }
 
 function showTicket(order) {
   document.getElementById('tk-code').textContent = order.id;
   document.getElementById('tk-student').textContent = order.student;
+  const studentCodeEl = document.getElementById('tk-student-code');
+  if (studentCodeEl) studentCodeEl.textContent = 'Cód. ' + (order.studentCode || (currentUser ? currentUser.code : '20240001'));
   document.getElementById('tk-type').textContent = order.orderType === 'dinein' ? `Consumo en mesa (${order.tableNumber || 'Sin número'})` : 'Para llevar';
   document.getElementById('tk-time').textContent = order.pickupTime;
   document.getElementById('tk-pay').textContent = order.paymentMethod;
   document.getElementById('tk-date').textContent = order.date;
   document.getElementById('tk-total').textContent = fmtCOP(order.total);
+
+  const cashChangeRow = document.getElementById('tk-cash-change-row');
+  const cashChangeDetail = document.getElementById('tk-cash-change-detail');
+  if (cashChangeRow && cashChangeDetail) {
+    if (order.paymentMethod.toLowerCase().includes('efectivo') && order.cashBill) {
+      cashChangeRow.style.display = 'block';
+      cashChangeDetail.textContent = order.cashBill === 'exact' ? 'Pago exacto (sin cambio)' : `Paga con ${fmtCOP(order.cashBill)} (Cambio a recibir: ${fmtCOP(order.cashChange || 0)})`;
+    } else {
+      cashChangeRow.style.display = 'none';
+    }
+  }
+
   const nequiMetaRow = document.getElementById('tk-nequi-meta-row');
   if (order.nequiRef) {
     nequiMetaRow.style.display = 'block';
@@ -1317,6 +1440,136 @@ function showTicket(order) {
   `).join('');
 }
 
+function generateReceiptHTML(order, studentCode) {
+  const isCash = order.paymentMethod.toLowerCase().includes('efectivo');
+  let cashDetail = '';
+  if (isCash && order.cashBill) {
+    if (order.cashBill === 'exact') {
+      cashDetail = '<div><strong>Modalidad Efectivo:</strong> Pago exacto en barra (sin cambio)</div>';
+    } else {
+      cashDetail = `<div><strong>Paga con:</strong> ${fmtCOP(order.cashBill)} · <strong>Cambio a devolver:</strong> ${fmtCOP(order.cashChange || 0)}</div>`;
+    }
+  }
+
+  const itemsRows = order.items.map(i => `
+    <tr>
+      <td style="padding: 6px 0; border-bottom: 1px dashed #ccc;">${i.name} ${i.details ? `<br><small style="color:#666">${i.details}</small>` : ''}</td>
+      <td style="padding: 6px 0; text-align:center; border-bottom: 1px dashed #ccc;">${i.qty}</td>
+      <td style="padding: 6px 0; text-align:right; border-bottom: 1px dashed #ccc;">${fmtCOP(i.price * i.qty)}</td>
+    </tr>
+  `).join('');
+
+  const qrImgSrc = document.querySelector('#tk-qr img')?.src || '';
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ticket ${order.id} · CoffeeSimon</title>
+  <style>
+    @page { size: 80mm auto; margin: 6mm; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; max-width: 360px; margin: 0 auto; color: #111; padding: 12px; font-size: 13px; line-height: 1.4; }
+    .header { text-align: center; border-bottom: 2px dashed #333; padding-bottom: 10px; margin-bottom: 12px; }
+    .brand { font-size: 20px; font-weight: 800; color: #0a6b35; margin: 0; }
+    .sub { font-size: 11px; color: #555; margin: 2px 0 6px; }
+    .order-id { font-size: 22px; font-weight: 800; margin: 6px 0; letter-spacing: 0.5px; }
+    .badge { display: inline-block; padding: 3px 10px; background: #eaf5ed; color: #0a6b35; font-size: 11px; font-weight: 700; border-radius: 99px; }
+    .meta { font-size: 12px; margin: 12px 0; border-bottom: 1px dashed #ccc; padding-bottom: 10px; }
+    .meta-line { margin: 3px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 10px 0; }
+    th { text-align: left; border-bottom: 1px solid #333; padding: 4px 0; font-size: 11px; text-transform: uppercase; }
+    .total-box { display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; border-top: 2px solid #111; padding-top: 8px; margin-top: 6px; }
+    .qr-area { text-align: center; margin: 16px 0 10px; }
+    .qr-area img { width: 130px; height: 130px; }
+    .footer { text-align: center; font-size: 10px; color: #666; border-top: 2px dashed #333; padding-top: 10px; margin-top: 14px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">CoffeeSimon</div>
+    <div class="sub">Universidad Simón Bolívar · Cafetería Central</div>
+    <div class="order-id">${order.id}</div>
+    <span class="badge">${order.status.toUpperCase()}</span>
+  </div>
+  <div class="meta">
+    <div class="meta-line"><strong>Estudiante:</strong> ${order.student}</div>
+    <div class="meta-line"><strong>Código Institucional:</strong> Cód. ${studentCode}</div>
+    <div class="meta-line"><strong>Fecha:</strong> ${order.date}</div>
+    <div class="meta-line"><strong>Modalidad:</strong> ${order.orderType === 'dinein' ? `En mesa (${order.tableNumber || 'Sin número'})` : 'Para llevar'}</div>
+    <div class="meta-line"><strong>Método de pago:</strong> ${order.paymentMethod}</div>
+    ${cashDetail ? `<div class="meta-line">${cashDetail}</div>` : ''}
+    ${order.nequiRef ? `<div class="meta-line"><strong>Ref Nequi:</strong> ${order.nequiRef}</div>` : ''}
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th style="text-align:center;">Cant.</th>
+        <th style="text-align:right;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${itemsRows}
+    </tbody>
+  </table>
+  <div class="total-box">
+    <span>TOTAL PAGADO</span>
+    <span>${fmtCOP(order.total)}</span>
+  </div>
+  ${qrImgSrc ? `
+    <div class="qr-area">
+      <div style="font-size:11px; font-weight:700; margin-bottom:6px;">TOKEN DE SEGURIDAD PARA RETIRAR:</div>
+      <img src="${qrImgSrc}" alt="QR Retiro" />
+      <div style="font-size:10px; color:#555; margin-top:4px;">Presenta este código en la barra de entrega</div>
+    </div>
+  ` : ''}
+  <div class="footer">
+    Comprobante digital válido de retiro en cafetería.<br>
+    Universidad Simón Bolívar · CoffeeSimon · ODS 9
+  </div>
+</body>
+</html>`;
+}
+
+function downloadCurrentTicketPDF() {
+  const code = document.getElementById('tk-code').textContent.trim();
+  const o = orders.find(x => x.id === code) || (orders.length > 0 ? orders[0] : null);
+  if (!o) return;
+  const studentCode = o.studentCode || (currentUser ? currentUser.code : '20240001');
+  const htmlContent = generateReceiptHTML(o, studentCode);
+  const printWindow = window.open('', '_blank');
+  if (printWindow) {
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 400);
+  } else {
+    showToast('Permite ventanas emergentes para generar el comprobante PDF');
+  }
+}
+
+function downloadOrderPDF(orderId) {
+  const o = orders.find(x => x.id === orderId);
+  if (!o) return;
+  const studentCode = o.studentCode || (currentUser ? currentUser.code : '20240001');
+  const htmlContent = generateReceiptHTML(o, studentCode);
+  const printWindow = window.open('', '_blank');
+  if (printWindow) {
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 400);
+  } else {
+    showToast('Permite ventanas emergentes para generar el comprobante PDF');
+  }
+}
+
 function reorderFromHistory(orderId) {
   const o = orders.find(x => x.id === orderId);
   if (!o) return;
@@ -1407,6 +1660,7 @@ function renderOrders() {
         <span style="font-size:13px; font-weight:700">${fmtCOP(o.total)}</span>
         <div style="display:flex; gap:6px; flex-wrap:wrap">
           <button class="btn-pill" onclick="viewOrderTicket('${o.id}')">Ver Ticket QR</button>
+          <button class="btn-pill" style="background:var(--surface); border-color:var(--border);" onclick="downloadOrderPDF('${o.id}')">PDF</button>
           ${reorderBtn}
         </div>
       </div>
@@ -1549,7 +1803,7 @@ function renderStaffPanel() {
             ${o.items.map(i => `• <strong>${i.name} × ${i.qty}</strong> ${i.details ? `<span style="color:var(--text-muted)">(${i.details})</span>` : ''}`).join('<br>')}
           </div>
           <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px">
-            Hora: ${o.pickupTime} | Modalidad: ${o.orderType === 'dinein' ? `Mesa: ${o.tableNumber || 'N/A'}` : 'Para llevar'} | Pago: ${o.paymentMethod}
+            Hora: ${o.pickupTime} | Modalidad: ${o.orderType === 'dinein' ? `Mesa: ${o.tableNumber || 'N/A'}` : 'Para llevar'} | Pago: ${o.paymentMethod}${o.cashBill ? ` (${o.cashBill === 'exact' ? 'Exacto' : 'Paga con ' + fmtCOP(o.cashBill) + ' · Cambio: ' + fmtCOP(o.cashChange || 0)})` : ''}
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap">
             <button class="btn-action" style="margin-top:0; padding:8px 14px; font-size:12px; flex:1;" onclick="advanceOrderStatus('${o.id}', '${nextStepMap[o.status].next}')">
@@ -1694,7 +1948,7 @@ function renderCalendarOrders() {
           ${o.items.map(i => `${i.name} ×${i.qty}`).join(' · ')}
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted)">
-          <span>Hora: ${o.date} | Pago: ${o.paymentMethod}</span>
+          <span>Hora: ${o.date} | Pago: ${o.paymentMethod}${o.cashBill ? ` (${o.cashBill === 'exact' ? 'Exacto' : 'Paga ' + fmtCOP(o.cashBill) + ' · Cambio ' + fmtCOP(o.cashChange || 0)})` : ''}</span>
           <strong style="font-size:13px; color:var(--text)">${fmtCOP(o.total)}</strong>
         </div>
       </div>
@@ -1853,6 +2107,7 @@ function confirmRejectOrder() {
   renderOrders();
   renderCart();
   updateKitchenWaitUI();
+  updateStudentSpendingUI();
   showToast(`Orden ${orderId} rechazada: ${reason}`);
 }
 
@@ -1916,6 +2171,7 @@ function confirmApplyStrike() {
   renderOrders();
   renderCart();
   updateKitchenWaitUI();
+  updateStudentSpendingUI();
   showToast(`Sanción aplicada (${durationSelect}) y orden cancelada.`);
 }
 
@@ -1937,6 +2193,7 @@ function advanceOrderStatus(id, newStatus) {
     renderOrders();
     renderCart();
     updateKitchenWaitUI();
+    updateStudentSpendingUI();
     showToast(`Orden ${id} actualizada a: ${newStatus.toUpperCase()}`);
   }
 }
@@ -1955,6 +2212,7 @@ function markOrderNoShow(id) {
     renderOrders();
     renderCart();
     updateKitchenWaitUI();
+    updateStudentSpendingUI();
     showToast(`Orden ${id} marcada como NO reclamada.`);
   }
 }
@@ -1984,7 +2242,73 @@ function quickValidateStaffCode() {
   renderOrders();
   renderCart();
   updateKitchenWaitUI();
+  updateStudentSpendingUI();
   showToast(`${code} entregada con éxito`);
+}
+
+function setRatingStars(val) {
+  selectedRatingStars = val;
+  document.querySelectorAll('#rate-stars-container .btn-star').forEach(btn => {
+    const bVal = parseInt(btn.dataset.val);
+    btn.classList.toggle('active', bVal <= val);
+  });
+}
+
+function toggleRateTag(btn) {
+  btn.classList.toggle('active');
+  const tagText = btn.textContent.trim();
+  if (selectedRateTags.includes(tagText)) {
+    selectedRateTags = selectedRateTags.filter(t => t !== tagText);
+  } else {
+    selectedRateTags.push(tagText);
+  }
+}
+
+function checkRatingPromptProbability() {
+  if (currentRole !== 'student') return;
+  const lastRated = parseInt(localStorage.getItem('cg_has_rated') || '0');
+  const now = Date.now();
+  if (now - lastRated < 12 * 60 * 60 * 1000) return;
+  if (Math.random() < 0.40) {
+    setTimeout(() => {
+      openRateModal();
+    }, 2000);
+  }
+}
+
+function openRateModal() {
+  setRatingStars(5);
+  selectedRateTags = [];
+  document.querySelectorAll('#modal-rate .tag-chip').forEach(c => c.classList.remove('active'));
+  const input = document.getElementById('rate-feedback-input');
+  if (input) input.value = '';
+  const modal = document.getElementById('modal-rate');
+  if (modal) modal.classList.add('open');
+}
+
+function dismissRateModal() {
+  const modal = document.getElementById('modal-rate');
+  if (modal) modal.classList.remove('open');
+  localStorage.setItem('cg_has_rated', Date.now());
+}
+
+function submitRating() {
+  const comment = (document.getElementById('rate-feedback-input')?.value || '').trim();
+  const ratingRecord = {
+    stars: selectedRatingStars,
+    tags: [...selectedRateTags],
+    comment,
+    student: currentUser ? currentUser.name : 'Estudiante Demo',
+    date: new Date().toLocaleString('es-CO')
+  };
+  const history = JSON.parse(localStorage.getItem('cg_ratings_history') || '[]');
+  history.unshift(ratingRecord);
+  localStorage.setItem('cg_ratings_history', JSON.stringify(history));
+  localStorage.setItem('cg_has_rated', Date.now());
+  const modal = document.getElementById('modal-rate');
+  if (modal) modal.classList.remove('open');
+  playNotificationSound();
+  showToast('¡Muchas gracias por calificar CoffeeSimon!');
 }
 
 function switchView(name) {
@@ -2040,6 +2364,7 @@ window.addEventListener('storage', (e) => {
     renderOrders();
     renderCart();
     updateKitchenWaitUI();
+    updateStudentSpendingUI();
     if (currentRole === 'staff') renderStaffPanel();
   } else if (e.key === 'cg_strikes' || e.key === 'cg_strike_until') {
     userStrikes = parseInt(localStorage.getItem('cg_strikes') || '0');

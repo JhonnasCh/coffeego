@@ -110,6 +110,7 @@
         <span style="opacity:0.4">|</span>
         <span id="display-user-sub">Cód. 20240001</span>
         <span class="reputation-badge" id="display-reputation">Fiabilidad 100% · 0 Faltas</span>
+        <span class="spending-pill" id="display-spending">Gasto acumulado: $0</span>
       </div>
       <button class="btn-logout" onclick="logoutSession()">
         <svg class="icon-svg" style="width:14px; height:14px" viewBox="0 0 24 24">
@@ -215,6 +216,32 @@
                   <small>Pago previo con comprobante</small>
                 </div>
               </div>
+              <div id="cash-bill-box" style="margin-top:10px; background:var(--surface-subtle); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border);">
+                <label style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px; text-transform:uppercase;">
+                  ¿Con qué billete vas a pagar en barra?
+                </label>
+                <div class="option-grid" style="grid-template-columns: repeat(4, 1fr); gap:6px;">
+                  <div class="radio-card selected" id="opt-bill-exact" onclick="selectCashBill('exact')">
+                    <span style="font-weight:700;">Exacto</span>
+                    <small>Sin cambio</small>
+                  </div>
+                  <div class="radio-card" id="opt-bill-10k" onclick="selectCashBill(10000)">
+                    <span style="font-weight:700;">$10.000</span>
+                    <small>Billete</small>
+                  </div>
+                  <div class="radio-card" id="opt-bill-20k" onclick="selectCashBill(20000)">
+                    <span style="font-weight:700;">$20.000</span>
+                    <small>Billete</small>
+                  </div>
+                  <div class="radio-card" id="opt-bill-50k" onclick="selectCashBill(50000)">
+                    <span style="font-weight:700;">$50.000</span>
+                    <small>Billete</small>
+                  </div>
+                </div>
+                <div id="cash-bill-feedback" style="margin-top:8px; font-size:12px; font-weight:600; color:var(--primary);">
+                  Pago con dinero exacto en barra.
+                </div>
+              </div>
               <div id="nequi-info-box" class="nequi-box" style="display:none;">
                 <div class="nequi-header">
                   <div>
@@ -311,9 +338,11 @@
           </div>
           <div class="ticket-meta">
             <div><strong>Estudiante:</strong> <span id="tk-student">--</span></div>
+            <div><strong>Código Institucional:</strong> <span id="tk-student-code">--</span></div>
             <div><strong>Modalidad:</strong> <span id="tk-type">Para llevar</span></div>
             <div><strong>Hora estimada:</strong> <span id="tk-time">Lo antes posible</span></div>
             <div><strong>Pago:</strong> <span id="tk-pay">Efectivo en caja</span></div>
+            <div id="tk-cash-change-row" style="display:none"><strong>Detalle Efectivo:</strong> <span id="tk-cash-change-detail">--</span></div>
             <div id="tk-nequi-meta-row" style="display:none"><strong>Comprobante Nequi:</strong> <span id="tk-nequi-meta">--</span></div>
             <div><strong>Fecha:</strong> <span id="tk-date">--</span></div>
           </div>
@@ -322,7 +351,15 @@
             <span>Total</span>
             <span id="tk-total">$0</span>
           </div>
-          <button class="btn-action" style="margin-top:16px" onclick="switchView('orders')">Ver Estado en Mis Pedidos</button>
+          <button type="button" class="btn-action" style="margin-top:14px; background:var(--surface); color:var(--primary); border:2px solid var(--primary); display:flex; align-items:center; justify-content:center; gap:8px;" onclick="downloadCurrentTicketPDF()">
+            <svg class="icon-svg" style="width:16px; height:16px" viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Descargar Comprobante (PDF)</span>
+          </button>
+          <button class="btn-action" style="margin-top:8px" onclick="switchView('orders')">Ver Estado en Mis Pedidos</button>
           <button class="btn-secondary-action" onclick="switchView('menu')">Volver al Menú</button>
         </div>
       </section>
@@ -671,6 +708,50 @@
     </button>
     <button class="btn-secondary-action" onclick="document.getElementById('modal-reject').classList.remove('open')">
       Cancelar
+    </button>
+  </div>
+</div>
+<div class="modal-backdrop" id="modal-rate" onclick="closeModalOnBackdrop(event, 'modal-rate')">
+  <div class="modal-sheet" style="text-align:center;">
+    <div class="modal-handle"></div>
+    <div style="width:48px; height:48px; margin:0 auto 10px; background:var(--accent-light); border-radius:var(--radius-full); display:flex; align-items:center; justify-content:center; color:var(--primary);">
+      <svg class="icon-svg" style="width:24px; height:24px" viewBox="0 0 24 24">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      </svg>
+    </div>
+    <h3 style="font-size:17px; font-weight:800; margin-bottom:4px;">¿Cómo calificarías CoffeeSimon?</h3>
+    <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">Tu opinión ayuda a mejorar la logística y tiempos de la cafetería de Unisimón.</p>
+    <div class="rate-stars-row" id="rate-stars-container" style="display:flex; justify-content:center; gap:8px; margin-bottom:14px;">
+      <button type="button" class="btn-star" onclick="setRatingStars(1)" data-val="1">
+        <svg class="icon-svg" style="width:28px; height:28px" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      </button>
+      <button type="button" class="btn-star" onclick="setRatingStars(2)" data-val="2">
+        <svg class="icon-svg" style="width:28px; height:28px" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      </button>
+      <button type="button" class="btn-star" onclick="setRatingStars(3)" data-val="3">
+        <svg class="icon-svg" style="width:28px; height:28px" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      </button>
+      <button type="button" class="btn-star" onclick="setRatingStars(4)" data-val="4">
+        <svg class="icon-svg" style="width:28px; height:28px" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      </button>
+      <button type="button" class="btn-star" onclick="setRatingStars(5)" data-val="5">
+        <svg class="icon-svg" style="width:28px; height:28px" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      </button>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-bottom:12px;">
+      <button type="button" class="tag-chip" onclick="toggleRateTag(this)">Rapidez</button>
+      <button type="button" class="tag-chip" onclick="toggleRateTag(this)">Buena temperatura</button>
+      <button type="button" class="tag-chip" onclick="toggleRateTag(this)">Atención en barra</button>
+      <button type="button" class="tag-chip" onclick="toggleRateTag(this)">Fácil de ordenar</button>
+    </div>
+    <div class="cart-form-group" style="text-align:left; margin-top:0;">
+      <input type="text" id="rate-feedback-input" class="input-clean" placeholder="Escribe un comentario adicional (opcional)..." />
+    </div>
+    <button type="button" class="btn-action" style="margin-top:10px;" onclick="submitRating()">
+      Enviar Calificación
+    </button>
+    <button type="button" class="btn-secondary-action" onclick="dismissRateModal()">
+      Ahora no
     </button>
   </div>
 </div>
