@@ -183,6 +183,15 @@ const DEFAULT_PRODUCTS = [
 
 const MAX_ACTIVE_ORDERS = 2;
 
+function getLocalDateISO(offsetDays = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 let currentUser = null;
 let userStrikes = parseInt(localStorage.getItem('cg_strikes') || '0');
 let userStrikeUntil = parseInt(localStorage.getItem('cg_strike_until') || '0');
@@ -192,9 +201,54 @@ let kitchenWaitSetting = localStorage.getItem('cg_kitchen_wait_setting') || '15'
 let products = DEFAULT_PRODUCTS;
 let favorites = JSON.parse(localStorage.getItem('cg_favs') || '[]');
 let cart = JSON.parse(localStorage.getItem('cg_cart') || '[]');
+
 let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
   {
+    id: 'CGO-0003',
+    isoDate: getLocalDateISO(0),
+    date: 'Hoy, 10:15 AM',
+    student: 'Estudiante Demo',
+    orderType: 'takeaway',
+    tableNumber: '',
+    pickupTime: 'Lo antes posible',
+    paymentMethod: 'Nequi',
+    nequiRef: 'M7829104',
+    proofImage: '',
+    items: [
+      { name: 'Empanadas de Carne o Pollo (x2)', qty: 1, price: 3500, details: '' },
+      { name: 'Jugo de Lulo Natural', qty: 1, price: 2500, details: '' }
+    ],
+    total: 6000,
+    status: 'preparando',
+    token: 'tok_demo3',
+    readyAt: null,
+    expiresAt: null,
+    rejectionReason: null
+  },
+  {
+    id: 'CGO-0002',
+    isoDate: getLocalDateISO(0),
+    date: 'Hoy, 09:50 AM',
+    student: 'Estudiante Demo',
+    orderType: 'takeaway',
+    tableNumber: '',
+    pickupTime: 'Lo antes posible',
+    paymentMethod: 'Efectivo en caja',
+    nequiRef: '',
+    proofImage: '',
+    items: [
+      { name: 'Capuchino Vainilla', qty: 1, price: 3800, details: 'Regular · Entera' }
+    ],
+    total: 3800,
+    status: 'recibido',
+    token: 'tok_demo2',
+    readyAt: null,
+    expiresAt: null,
+    rejectionReason: null
+  },
+  {
     id: 'CGO-0001',
+    isoDate: getLocalDateISO(0),
     date: 'Hoy, 09:20 AM',
     student: 'Estudiante Demo',
     orderType: 'takeaway',
@@ -213,18 +267,91 @@ let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
     readyAt: null,
     expiresAt: null,
     rejectionReason: null
+  },
+  {
+    id: 'CGO-9999',
+    isoDate: getLocalDateISO(-1),
+    date: 'Ayer, 11:30 AM',
+    student: 'Estudiante Demo',
+    orderType: 'takeaway',
+    tableNumber: '',
+    pickupTime: 'En 30 minutos',
+    paymentMethod: 'Nequi',
+    nequiRef: 'M4481920',
+    proofImage: '',
+    items: [
+      { name: 'Brownie Artesanal', qty: 1, price: 3500, details: '' }
+    ],
+    total: 3500,
+    status: 'rechazado',
+    token: 'tok_demo_rej',
+    readyAt: null,
+    expiresAt: null,
+    rejectionReason: 'El comprobante enviado no corresponde con el valor de la orden'
+  },
+  {
+    id: 'CGO-9998',
+    isoDate: getLocalDateISO(-1),
+    date: 'Ayer, 01:10 PM',
+    student: 'Estudiante Demo',
+    orderType: 'dinein',
+    tableNumber: 'Mesa 4',
+    pickupTime: 'Lo antes posible',
+    paymentMethod: 'Efectivo en caja',
+    nequiRef: '',
+    proofImage: '',
+    items: [
+      { name: 'Almuerzo Ejecutivo del Día', qty: 1, price: 9500, details: '' }
+    ],
+    total: 9500,
+    status: 'entregado',
+    token: 'tok_demo_ent',
+    readyAt: null,
+    expiresAt: null,
+    rejectionReason: null
+  },
+  {
+    id: 'CGO-9997',
+    isoDate: getLocalDateISO(-1),
+    date: 'Ayer, 04:15 PM',
+    student: 'Estudiante Demo',
+    orderType: 'takeaway',
+    tableNumber: '',
+    pickupTime: 'Lo antes posible',
+    paymentMethod: 'Efectivo en caja',
+    nequiRef: '',
+    proofImage: '',
+    items: [
+      { name: 'Avena Fría con Canela', qty: 2, price: 2200, details: '' }
+    ],
+    total: 4400,
+    status: 'no_reclamado',
+    token: 'tok_demo_noshow',
+    readyAt: null,
+    expiresAt: null,
+    rejectionReason: 'Superó los 15 minutos de tolerancia para retirar en barra'
   }
 ];
 
-let strikeHistory = JSON.parse(localStorage.getItem('cg_strike_history') || '[]');
-
 if (Array.isArray(orders)) {
   orders.forEach(o => {
+    if (!o.isoDate) o.isoDate = getLocalDateISO(0);
     if (o.student && (o.student.toLowerCase().includes('charris') || o.student.toLowerCase().includes('jhonnas'))) {
       o.student = 'Estudiante Demo';
     }
   });
 }
+
+let strikeHistory = JSON.parse(localStorage.getItem('cg_strike_history') || 'null') || [
+  {
+    orderId: 'CGO-9999',
+    student: 'Estudiante Demo (20240001)',
+    reason: 'Comprobante falso o editado',
+    duration: '24 Horas',
+    date: 'Ayer, 11:32 AM',
+    status: 'perdonado'
+  }
+];
 
 let currentCategory = 'Todos';
 let currentRole = 'student';
@@ -238,6 +365,122 @@ let modalExtraPrice = 0;
 let modalSelectedSize = 'Regular';
 let activeTimerInterval = null;
 let staffSortMode = 'arrival';
+let currentStaffSubtab = 'queue';
+let selectedCalendarDate = getLocalDateISO(0);
+let selectedCalendarFilter = 'all';
+let lastNotifiedOrderId = null;
+
+function playNotificationSound() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    const now = ctx.currentTime;
+    osc.frequency.setValueAtTime(587.33, now);
+    osc.frequency.setValueAtTime(880, now + 0.12);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+    osc.start(now);
+    osc.stop(now + 0.45);
+  } catch (e) {}
+}
+
+function triggerStudentNotification(order, newStatus, message) {
+  playNotificationSound();
+  if ('vibrate' in navigator) {
+    try { navigator.vibrate([200, 100, 200]); } catch (e) {}
+  }
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification(`CoffeeGo · ${order.id}`, {
+        body: message,
+        icon: 'logo.jpg',
+        badge: 'favicon.jpg',
+        tag: `order-${order.id}-${newStatus}`
+      });
+    } catch (e) {}
+  }
+  showStudentNotifToast(order.id, `Pedido ${order.id}`, message, newStatus);
+}
+
+function showStudentNotifToast(orderId, title, message, status) {
+  lastNotifiedOrderId = orderId;
+  const el = document.getElementById('student-notif-toast');
+  if (!el) return;
+  document.getElementById('snt-title').textContent = title;
+  document.getElementById('snt-body').textContent = message;
+  el.className = 'student-notif-toast';
+  if (status === 'rechazado' || status === 'sancionado' || status === 'no_reclamado') {
+    el.classList.add('danger');
+  } else if (status === 'pendiente_pago') {
+    el.classList.add('warning');
+  }
+  el.style.display = 'flex';
+  clearTimeout(window._studentNotifTimeout);
+  window._studentNotifTimeout = setTimeout(() => {
+    closeStudentNotif();
+  }, 7000);
+}
+
+function closeStudentNotif() {
+  const el = document.getElementById('student-notif-toast');
+  if (el) el.style.display = 'none';
+}
+
+function handleNotificationToastClick() {
+  closeStudentNotif();
+  if (lastNotifiedOrderId) {
+    viewOrderTicket(lastNotifiedOrderId);
+  } else {
+    switchView('orders');
+  }
+}
+
+function togglePushNotifications() {
+  if (!('Notification' in window)) {
+    showToast('Tu dispositivo reproduce alertas de sonido y en pantalla.');
+    playNotificationSound();
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    showToast('Notificaciones ya autorizadas en este navegador.');
+    playNotificationSound();
+    updateNotificationBellUI();
+  } else if (Notification.permission === 'denied') {
+    showToast('Notificaciones del sistema bloqueadas en ajustes del navegador.');
+  } else {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        showToast('Notificaciones activadas para móvil y computador.');
+        playNotificationSound();
+        try {
+          new Notification('CoffeeGo · Notificaciones Activas', {
+            body: 'Te avisaremos cuando tu orden esté en preparación o lista.',
+            icon: 'logo.jpg'
+          });
+        } catch (e) {}
+      } else {
+        showToast('No se otorgó permiso de notificación.');
+      }
+      updateNotificationBellUI();
+    });
+  }
+}
+
+function updateNotificationBellUI() {
+  const bellBtn = document.getElementById('btn-notif-bell');
+  if (!bellBtn) return;
+  if ('Notification' in window && Notification.permission === 'granted') {
+    bellBtn.style.color = 'var(--primary)';
+  } else {
+    bellBtn.style.color = '';
+  }
+}
 
 function initAuth() {
   try {
@@ -248,6 +491,7 @@ function initAuth() {
   } catch (e) {}
   currentUser = null;
   showLoginView();
+  updateNotificationBellUI();
 }
 
 function showLoginView() {
@@ -283,6 +527,9 @@ function handleLoginSubmit(e) {
   localStorage.setItem('cg_session', JSON.stringify(session));
   applyUserSession(session);
   showToast('Bienvenido, ' + name);
+  if (role === 'student' && 'Notification' in window && Notification.permission === 'default') {
+    setTimeout(togglePushNotifications, 1500);
+  }
 }
 
 function fillQuickLogin(role) {
@@ -312,6 +559,7 @@ function applyUserSession(user) {
   renderOrders();
   updateCartBadge();
   renderStaticNequiQR();
+  updateNotificationBellUI();
   if (currentRole === 'staff') {
     switchView('staff');
   } else {
@@ -905,8 +1153,9 @@ function confirmOrder() {
   const pickupTime = document.getElementById('cart-pickup-time').value;
   const newOrder = {
     id,
+    isoDate: getLocalDateISO(0),
     date: 'Hoy, ' + new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
-    student: currentUser ? currentUser.name : 'Estudiante',
+    student: currentUser ? currentUser.name : 'Estudiante Demo',
     orderType,
     tableNumber: table,
     pickupTime,
@@ -1181,13 +1430,43 @@ function setStaffSort(mode) {
   renderStaffPanel();
 }
 
+function switchStaffSubtab(tabName) {
+  currentStaffSubtab = tabName;
+  document.querySelectorAll('.staff-subnav-btn').forEach(btn => btn.classList.remove('active'));
+  const btn = document.getElementById('staff-subtab-' + tabName);
+  if (btn) btn.classList.add('active');
+
+  document.querySelectorAll('.staff-subview').forEach(view => view.style.display = 'none');
+  const view = document.getElementById('staff-subview-' + tabName);
+  if (view) view.style.display = 'block';
+
+  if (tabName === 'queue') {
+    renderStaffPanel();
+  } else if (tabName === 'calendar') {
+    renderCalendarOrders();
+  } else if (tabName === 'strikes') {
+    renderStrikesPanel();
+  } else if (tabName === 'settings') {
+    updateKitchenWaitUI();
+  }
+}
+
 function renderStaffPanel() {
   const activeOrders = orders.filter(o => o.status !== 'entregado' && o.status !== 'no_reclamado' && o.status !== 'sancionado' && o.status !== 'rechazado');
   const readyOrders = orders.filter(o => o.status === 'listo');
-  const totalToday = orders.filter(o => o.status === 'entregado').reduce((acc, o) => acc + o.total, 0);
-  document.getElementById('stat-active-count').textContent = activeOrders.length;
-  document.getElementById('stat-ready-count').textContent = readyOrders.length;
-  document.getElementById('stat-total-today').textContent = fmtCOP(totalToday);
+  const todayISO = getLocalDateISO(0);
+  const totalToday = orders.filter(o => o.status === 'entregado' && (o.isoDate === todayISO || !o.isoDate)).reduce((acc, o) => acc + o.total, 0);
+
+  const statActive = document.getElementById('stat-active-count');
+  if (statActive) statActive.textContent = activeOrders.length;
+  const statReady = document.getElementById('stat-ready-count');
+  if (statReady) statReady.textContent = readyOrders.length;
+  const statTotal = document.getElementById('stat-total-today');
+  if (statTotal) statTotal.textContent = fmtCOP(totalToday);
+
+  const badgeQueue = document.getElementById('staff-badge-queue');
+  if (badgeQueue) badgeQueue.textContent = activeOrders.length;
+
   updateKitchenWaitUI();
 
   let sortedOrders = [...activeOrders];
@@ -1198,115 +1477,333 @@ function renderStaffPanel() {
   const container = document.getElementById('staff-orders-list');
   if (sortedOrders.length === 0) {
     container.innerHTML = `
-      <div style="text-align:center; padding:30px 18px; color:var(--text-muted)">
+      <div style="text-align:center; padding:36px 18px; color:var(--text-muted)">
         <p style="font-weight:700">No hay órdenes pendientes en este momento.</p>
+        <p style="font-size:12px; margin-top:4px">La cocina se encuentra al día.</p>
       </div>`;
-    return;
-  }
-  container.innerHTML = sortedOrders.map(o => {
-    const prepTime = estimateOrderPrepTime(o);
-    const prepLabel = getPrepTimeLabel(prepTime);
+  } else {
+    container.innerHTML = sortedOrders.map(o => {
+      const prepTime = estimateOrderPrepTime(o);
+      const prepLabel = getPrepTimeLabel(prepTime);
 
-    if (o.status === 'pendiente_pago') {
+      if (o.status === 'pendiente_pago') {
+        return `
+          <div class="order-entry" style="background:var(--warning-bg); border:1px solid var(--warning); border-radius:var(--radius-sm); margin:10px 18px;">
+            <div class="order-entry-head">
+              <div>
+                <strong style="font-size:15px; color:var(--warning);">${o.id}</strong>
+                <span style="font-size:12px; color:var(--text-muted)">(${o.student})</span>
+              </div>
+              <span class="order-status-badge st-pendiente_pago">POR VALIDAR NEQUI</span>
+            </div>
+            <div style="display:flex; gap:6px; align-items:center; margin:4px 0 8px;">
+              <span class="prep-time-badge ${prepLabel.cls}">${prepLabel.text}</span>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center; margin: 8px 0;">
+              ${o.proofImage ? `
+                <div class="proof-thumbnail-btn" onclick="openProofViewer('${o.proofImage}', '${o.id}', '${o.student}')" title="Ver captura completa">
+                  <img src="${o.proofImage}" alt="Comprobante" />
+                </div>
+              ` : '<div style="font-size:11px; color:var(--danger)">Sin captura adjunta</div>'}
+              <div style="flex:1; font-size:12px; line-height:1.4;">
+                <div>Ref: <strong style="font-family:monospace; background:var(--surface); padding:1px 5px; border-radius:4px;">${o.nequiRef || 'SIN REF'}</strong></div>
+                <div>Monto a confirmar: <strong>${fmtCOP(o.total)}</strong></div>
+                <div style="font-size:11px; color:var(--text-muted)">Toca la miniatura para inspeccionar la captura</div>
+              </div>
+            </div>
+            <div style="font-size:12px; margin: 6px 0; color:var(--text-muted);">
+              ${o.items.map(i => `• ${i.name} × ${i.qty}`).join(' · ')}
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+              <button class="btn-action" style="margin-top:0; padding:8px 12px; font-size:12px; background:var(--primary); color:#fff; flex:1;" onclick="verifyNequiAndStartPrep('${o.id}')">
+                Aprobar Pago y Empezar a Cocinar
+              </button>
+              <button class="btn-secondary-action" style="margin-top:0; padding:8px 12px; font-size:12px; width:auto; color:var(--warning); border-color:var(--warning);" onclick="openRejectModal('${o.id}', '${o.student}')">
+                Rechazar
+              </button>
+              <button class="btn-secondary-action" style="margin-top:0; padding:8px 12px; font-size:12px; width:auto; color:var(--danger); border-color:var(--danger);" onclick="openStrikeModal('${o.id}', '${o.student}')">
+                Sancionar
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      const nextStepMap = {
+        recibido: { next: 'preparando', label: 'Iniciar Preparación' },
+        preparando: { next: 'listo', label: 'Marcar: ¡Listo para retirar!' },
+        listo: { next: 'entregado', label: 'Entregar pedido' }
+      };
       return `
-        <div class="order-entry" style="background:var(--warning-bg); border:1px solid var(--warning); border-radius:var(--radius-sm); margin:10px 18px;">
+        <div class="order-entry" style="background:var(--surface)">
           <div class="order-entry-head">
             <div>
-              <strong style="font-size:15px; color:var(--warning);">${o.id}</strong>
+              <strong style="font-size:15px">${o.id}</strong>
               <span style="font-size:12px; color:var(--text-muted)">(${o.student})</span>
             </div>
-            <span class="order-status-badge st-pendiente_pago">POR VALIDAR NEQUI</span>
+            <span class="order-status-badge st-${o.status}">${o.status.toUpperCase()}</span>
           </div>
           <div style="display:flex; gap:6px; align-items:center; margin:4px 0 8px;">
             <span class="prep-time-badge ${prepLabel.cls}">${prepLabel.text}</span>
           </div>
-          <div style="display:flex; gap:12px; align-items:center; margin: 8px 0;">
-            ${o.proofImage ? `
-              <div class="proof-thumbnail-btn" onclick="openProofViewer('${o.proofImage}', '${o.id}', '${o.student}')" title="Ver captura completa">
-                <img src="${o.proofImage}" alt="Comprobante" />
-              </div>
-            ` : '<div style="font-size:11px; color:var(--danger)">Sin captura adjunta</div>'}
-            <div style="flex:1; font-size:12px; line-height:1.4;">
-              <div>Ref: <strong style="font-family:monospace; background:var(--surface); padding:1px 5px; border-radius:4px;">${o.nequiRef || 'SIN REF'}</strong></div>
-              <div>Monto a confirmar: <strong>${fmtCOP(o.total)}</strong></div>
-              <div style="font-size:11px; color:var(--text-muted)">Toca la miniatura para inspeccionar la captura</div>
-            </div>
+          <div style="font-size:12px; margin: 4px 0 8px; line-height:1.5;">
+            ${o.items.map(i => `• <strong>${i.name} × ${i.qty}</strong> ${i.details ? `<span style="color:var(--text-muted)">(${i.details})</span>` : ''}`).join('<br>')}
           </div>
-          <div style="font-size:12px; margin: 6px 0; color:var(--text-muted);">
-            ${o.items.map(i => `• ${i.name} × ${i.qty}`).join(' · ')}
+          <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px">
+            Hora: ${o.pickupTime} | Modalidad: ${o.orderType === 'dinein' ? `Mesa: ${o.tableNumber || 'N/A'}` : 'Para llevar'} | Pago: ${o.paymentMethod}
           </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
-            <button class="btn-action" style="margin-top:0; padding:8px 12px; font-size:12px; background:var(--primary); color:#fff; flex:1;" onclick="verifyNequiAndStartPrep('${o.id}')">
-              Aprobar Pago y Empezar a Cocinar
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <button class="btn-action" style="margin-top:0; padding:8px 14px; font-size:12px; flex:1;" onclick="advanceOrderStatus('${o.id}', '${nextStepMap[o.status].next}')">
+              ${nextStepMap[o.status].label}
             </button>
-            <button class="btn-secondary-action" style="margin-top:0; padding:8px 12px; font-size:12px; width:auto; color:var(--danger); border-color:var(--danger);" onclick="openRejectModal('${o.id}', '${o.student}')">
-              Rechazar
-            </button>
-            <button class="btn-secondary-action" style="margin-top:0; padding:8px 12px; font-size:12px; width:auto; color:var(--danger); border-color:var(--danger);" onclick="openStrikeModal('${o.id}', '${o.student}')">
-              Sancionar
-            </button>
+            ${o.status === 'listo' ? `
+              <button class="btn-secondary-action" style="margin-top:0; padding:8px 12px; font-size:12px; width:auto; color:var(--danger); border-color:var(--danger);" onclick="markOrderNoShow('${o.id}')">
+                Marcar No Reclamado
+              </button>
+            ` : ''}
           </div>
         </div>
       `;
+    }).join('');
+  }
+
+  if (currentStaffSubtab === 'calendar') renderCalendarOrders();
+  if (currentStaffSubtab === 'strikes') renderStrikesPanel();
+}
+
+function selectCalendarDate(type) {
+  document.getElementById('cal-btn-today').classList.toggle('active', type === 'today');
+  document.getElementById('cal-btn-yesterday').classList.toggle('active', type === 'yesterday');
+  document.getElementById('cal-btn-all').classList.toggle('active', type === 'all');
+  const picker = document.getElementById('calendar-date-picker');
+  const label = document.getElementById('calendar-current-selection-label');
+  if (type === 'today') {
+    selectedCalendarDate = getLocalDateISO(0);
+    if (picker) picker.value = selectedCalendarDate;
+    if (label) label.textContent = 'Hoy (' + selectedCalendarDate + ')';
+  } else if (type === 'yesterday') {
+    selectedCalendarDate = getLocalDateISO(-1);
+    if (picker) picker.value = selectedCalendarDate;
+    if (label) label.textContent = 'Ayer (' + selectedCalendarDate + ')';
+  } else {
+    selectedCalendarDate = 'all';
+    if (picker) picker.value = '';
+    if (label) label.textContent = 'Todos los registros históricos';
+  }
+  renderCalendarOrders();
+}
+
+function onCalendarDatePicked(val) {
+  if (!val) {
+    selectCalendarDate('all');
+    return;
+  }
+  selectedCalendarDate = val;
+  document.getElementById('cal-btn-today').classList.remove('active');
+  document.getElementById('cal-btn-yesterday').classList.remove('active');
+  document.getElementById('cal-btn-all').classList.remove('active');
+  const label = document.getElementById('calendar-current-selection-label');
+  if (label) label.textContent = val;
+  renderCalendarOrders();
+}
+
+function setCalendarFilter(filter) {
+  selectedCalendarFilter = filter;
+  document.getElementById('cal-fil-all').classList.toggle('active', filter === 'all');
+  document.getElementById('cal-fil-cancelled').classList.toggle('active', filter === 'cancelled');
+  document.getElementById('cal-fil-delivered').classList.toggle('active', filter === 'delivered');
+  renderCalendarOrders();
+}
+
+function renderCalendarOrders() {
+  const container = document.getElementById('calendar-orders-list');
+  if (!container) return;
+  const picker = document.getElementById('calendar-date-picker');
+  if (picker && !picker.value && selectedCalendarDate !== 'all') {
+    picker.value = selectedCalendarDate;
+  }
+
+  let dateOrders = orders;
+  if (selectedCalendarDate !== 'all') {
+    dateOrders = orders.filter(o => o.isoDate === selectedCalendarDate);
+  }
+
+  const totalCount = dateOrders.length;
+  const deliveredOrders = dateOrders.filter(o => o.status === 'entregado');
+  const deliveredIncome = deliveredOrders.reduce((acc, o) => acc + o.total, 0);
+  const cancelledOrders = dateOrders.filter(o => o.status === 'rechazado' || o.status === 'sancionado' || o.status === 'no_reclamado');
+
+  document.getElementById('cal-stat-total').textContent = totalCount;
+  document.getElementById('cal-stat-income').textContent = fmtCOP(deliveredIncome);
+  document.getElementById('cal-stat-cancelled').textContent = cancelledOrders.length;
+
+  let displayOrders = [...dateOrders];
+  if (selectedCalendarFilter === 'cancelled') {
+    displayOrders = displayOrders.filter(o => o.status === 'rechazado' || o.status === 'sancionado' || o.status === 'no_reclamado');
+  } else if (selectedCalendarFilter === 'delivered') {
+    displayOrders = displayOrders.filter(o => o.status === 'entregado');
+  }
+
+  const titleEl = document.getElementById('calendar-results-title');
+  if (titleEl) {
+    if (selectedCalendarFilter === 'cancelled') {
+      titleEl.textContent = `Pedidos Cancelados / Rechazados (${displayOrders.length})`;
+    } else if (selectedCalendarFilter === 'delivered') {
+      titleEl.textContent = `Pedidos Entregados (${displayOrders.length})`;
+    } else {
+      titleEl.textContent = `Pedidos de la fecha (${displayOrders.length})`;
     }
-    const nextStepMap = {
-      recibido: { next: 'preparando', label: 'Iniciar Preparación' },
-      preparando: { next: 'listo', label: 'Marcar: ¡Listo para retirar!' },
-      listo: { next: 'entregado', label: 'Entregar pedido' }
-    };
+  }
+
+  if (displayOrders.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:32px 18px; color:var(--text-muted)">
+        <p style="font-weight:700">No hay pedidos con el filtro seleccionado</p>
+        <p style="font-size:12px; margin-top:4px">Prueba seleccionando otra fecha o cambiando el filtro.</p>
+      </div>`;
+    return;
+  }
+
+  const statusNames = {
+    pendiente_pago: 'Pendiente Nequi',
+    recibido: 'Recibido',
+    preparando: 'Preparando',
+    listo: 'Listo para reclamar',
+    entregado: 'Entregado',
+    no_reclamado: 'No reclamado / Vencido',
+    sancionado: 'Anulado por sanción',
+    rechazado: 'Rechazado'
+  };
+
+  container.innerHTML = displayOrders.map(o => {
+    const isCancelled = o.status === 'rechazado' || o.status === 'sancionado' || o.status === 'no_reclamado';
     return `
-      <div class="order-entry" style="background:var(--surface)">
+      <div class="order-entry" style="background:var(--surface); ${isCancelled ? 'border-left: 4px solid var(--danger);' : ''}">
         <div class="order-entry-head">
           <div>
-            <strong style="font-size:15px">${o.id}</strong>
+            <strong style="font-size:14px">${o.id}</strong>
             <span style="font-size:12px; color:var(--text-muted)">(${o.student})</span>
           </div>
-          <span class="order-status-badge st-${o.status}">${o.status.toUpperCase()}</span>
+          <span class="order-status-badge st-${o.status}">${statusNames[o.status] || o.status}</span>
         </div>
-        <div style="display:flex; gap:6px; align-items:center; margin:4px 0 8px;">
-          <span class="prep-time-badge ${prepLabel.cls}">${prepLabel.text}</span>
+        ${o.rejectionReason ? `
+          <div style="background:var(--danger-bg); color:var(--danger); font-size:11px; padding:6px 10px; border-radius:var(--radius-sm); margin:6px 0 8px;">
+            <strong>Motivo:</strong> ${o.rejectionReason}
+          </div>
+        ` : ''}
+        <div style="font-size:12px; margin: 4px 0 6px;">
+          ${o.items.map(i => `${i.name} ×${i.qty}`).join(' · ')}
         </div>
-        <div style="font-size:12px; margin: 4px 0 8px; line-height:1.5;">
-          ${o.items.map(i => `• <strong>${i.name} × ${i.qty}</strong> ${i.details ? `<span style="color:var(--text-muted)">(${i.details})</span>` : ''}`).join('<br>')}
-        </div>
-        <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px">
-          Hora: ${o.pickupTime} | Modalidad: ${o.orderType === 'dinein' ? `Mesa: ${o.tableNumber || 'N/A'}` : 'Para llevar'} | Pago: ${o.paymentMethod}
-        </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap">
-          <button class="btn-action" style="margin-top:0; padding:8px 14px; font-size:12px; flex:1;" onclick="advanceOrderStatus('${o.id}', '${nextStepMap[o.status].next}')">
-            ${nextStepMap[o.status].label}
-          </button>
-          ${o.status === 'listo' ? `
-            <button class="btn-secondary-action" style="margin-top:0; padding:8px 12px; font-size:12px; width:auto; color:var(--danger); border-color:var(--danger);" onclick="markOrderNoShow('${o.id}')">
-              Marcar No Reclamado
-            </button>
-          ` : ''}
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted)">
+          <span>Hora: ${o.date} | Pago: ${o.paymentMethod}</span>
+          <strong style="font-size:13px; color:var(--text)">${fmtCOP(o.total)}</strong>
         </div>
       </div>
     `;
   }).join('');
-
-  renderStrikeHistory();
 }
 
-function renderStrikeHistory() {
-  const container = document.getElementById('staff-strike-history');
+function renderStrikesPanel() {
+  const container = document.getElementById('staff-strike-history-cards');
   if (!container) return;
-  if (strikeHistory.length === 0) {
-    container.innerHTML = '<div style="text-align:center; padding:20px; font-size:12px; color:var(--text-muted)">No hay sanciones registradas</div>';
+  const now = Date.now();
+  const hasActiveSanction = userStrikeUntil > now;
+  const activeCount = (hasActiveSanction ? 1 : 0) + strikeHistory.filter(s => s.status === 'activa').length;
+
+  document.getElementById('kpi-active-strikes').textContent = activeCount;
+  document.getElementById('kpi-total-strikes').textContent = strikeHistory.length + (userStrikes > 0 ? userStrikes : 0);
+
+  const badgeStrikes = document.getElementById('staff-badge-strikes');
+  if (badgeStrikes) {
+    if (activeCount > 0) {
+      badgeStrikes.textContent = activeCount;
+      badgeStrikes.style.display = 'block';
+    } else {
+      badgeStrikes.style.display = 'none';
+    }
+  }
+
+  if (strikeHistory.length === 0 && !hasActiveSanction) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:36px 18px; color:var(--text-muted)">
+        <p style="font-weight:700">Sin sanciones registradas</p>
+        <p style="font-size:12px; margin-top:4px">Todos los estudiantes tienen fiabilidad al 100%.</p>
+      </div>`;
     return;
   }
-  container.innerHTML = strikeHistory.map(s => `
-    <div style="padding:10px 14px; border-bottom:1px solid var(--border); font-size:12px; line-height:1.5;">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <strong style="color:var(--danger)">${s.orderId}</strong>
-        <span style="font-size:11px; color:var(--text-muted)">${s.date}</span>
+
+  let html = '';
+  if (hasActiveSanction) {
+    const diffMs = userStrikeUntil - now;
+    const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+    html += `
+      <div class="strike-card-entry active-strike">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="font-size:14px; color:var(--danger)">Estudiante Demo (20240001)</strong>
+          <span class="order-status-badge st-sancionado">SANCIÓN ACTIVA (~${diffHours}h restantes)</span>
+        </div>
+        <div style="font-size:12px; margin-bottom:4px"><strong>Motivo:</strong> ${userStrikeReason || 'Falta disciplinaria'}</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px">Pagos Nequi suspendidos actualmente para este estudiante.</div>
+        <button type="button" class="btn-pill" style="background:var(--success); color:#fff; border-color:var(--success);" onclick="liftSanction('current')">
+          Levantar Sanción / Perdonar
+        </button>
       </div>
-      <div>Estudiante: <strong>${s.student}</strong></div>
-      <div>Motivo: ${s.reason}</div>
-      <div>Duración: ${s.duration}</div>
-    </div>
-  `).join('');
+    `;
+  }
+
+  html += strikeHistory.map((s, idx) => {
+    const isPardoned = s.status === 'perdonado';
+    return `
+      <div class="strike-card-entry ${isPardoned ? 'pardoned-strike' : 'active-strike'}">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="font-size:14px">${s.student}</strong>
+          <span class="order-status-badge ${isPardoned ? 'st-entregado' : 'st-sancionado'}">
+            ${isPardoned ? 'PERDONADA' : 'REGISTRADA'}
+          </span>
+        </div>
+        <div style="font-size:12px; margin-bottom:2px"><strong>Orden:</strong> ${s.orderId}</div>
+        <div style="font-size:12px; margin-bottom:2px"><strong>Motivo:</strong> ${s.reason}</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px">Fecha: ${s.date} · Duración: ${s.duration}</div>
+        ${!isPardoned ? `
+          <button type="button" class="btn-pill" style="background:var(--success); color:#fff; border-color:var(--success);" onclick="liftSanction(${idx})">
+            Levantar Sanción / Perdonar
+          </button>
+        ` : '<span style="font-size:11px; color:var(--success); font-weight:700">Sanción perdonada por administración</span>'}
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = html;
+}
+
+function liftSanction(target) {
+  userStrikes = 0;
+  userStrikeUntil = 0;
+  userStrikeReason = '';
+  localStorage.setItem('cg_strikes', 0);
+  localStorage.setItem('cg_strike_until', 0);
+  localStorage.setItem('cg_strike_reason', '');
+  if (typeof target === 'number' && strikeHistory[target]) {
+    strikeHistory[target].status = 'perdonado';
+    localStorage.setItem('cg_strike_history', JSON.stringify(strikeHistory));
+  } else if (strikeHistory.length > 0) {
+    strikeHistory.forEach(s => s.status = 'perdonado');
+    localStorage.setItem('cg_strike_history', JSON.stringify(strikeHistory));
+  }
+  checkStrikeActiveStatus();
+  renderReputationBadge();
+  renderStrikesPanel();
+  renderStaffPanel();
+  renderCart();
+  showToast('Sanción levantada. El estudiante ha sido rehabilitado.');
+}
+
+function openManualStrikeModal() {
+  targetStrikeOrderId = 'MANUAL-' + Math.floor(1000 + Math.random() * 9000);
+  const targetLabel = document.getElementById('modal-strike-target');
+  if (targetLabel) targetLabel.textContent = 'Registro disciplinario directo';
+  const field = document.getElementById('strike-student-field');
+  if (field) field.style.display = 'block';
+  document.getElementById('modal-strike').classList.add('open');
 }
 
 function openProofViewer(imgUrl, orderId, studentName) {
@@ -1320,6 +1817,7 @@ function verifyNequiAndStartPrep(id) {
   if (o) {
     o.status = 'preparando';
     localStorage.setItem('cg_orders', JSON.stringify(orders));
+    triggerStudentNotification(o, 'preparando', '¡Tu pago Nequi fue validado! Tu comanda ha entrado en preparación en cocina.');
     renderStaffPanel();
     renderOrders();
     renderCart();
@@ -1348,6 +1846,7 @@ function confirmRejectOrder() {
     o.status = 'rechazado';
     o.rejectionReason = reason;
     localStorage.setItem('cg_orders', JSON.stringify(orders));
+    triggerStudentNotification(o, 'rechazado', `Pago Nequi rechazado por cocina: ${reason}`);
   }
   modal.classList.remove('open');
   renderStaffPanel();
@@ -1360,6 +1859,8 @@ function confirmRejectOrder() {
 function openStrikeModal(orderId, studentName) {
   targetStrikeOrderId = orderId;
   document.getElementById('modal-strike-target').textContent = `Orden: ${orderId} · Estudiante: ${studentName}`;
+  const field = document.getElementById('strike-student-field');
+  if (field) field.style.display = 'none';
   document.getElementById('modal-strike').classList.add('open');
 }
 
@@ -1378,27 +1879,40 @@ function confirmApplyStrike() {
   localStorage.setItem('cg_strikes', userStrikes);
   localStorage.setItem('cg_strike_until', userStrikeUntil);
   localStorage.setItem('cg_strike_reason', userStrikeReason);
+
+  let studentName = 'Estudiante Demo (20240001)';
+  const manualInput = document.getElementById('strike-manual-student-input');
+  if (manualInput && manualInput.value.trim()) {
+    studentName = manualInput.value.trim();
+    manualInput.value = '';
+  }
+
   const o = orders.find(x => x.id === targetStrikeOrderId);
-  const studentName = o ? o.student : 'Desconocido';
   if (o) {
+    studentName = o.student;
     o.status = 'sancionado';
     o.rejectionReason = reason;
     localStorage.setItem('cg_orders', JSON.stringify(orders));
+    triggerStudentNotification(o, 'sancionado', `Sanción disciplinaria aplicada: ${reason}`);
   }
 
   strikeHistory.unshift({
-    orderId: targetStrikeOrderId,
+    orderId: targetStrikeOrderId || ('SAN-' + Math.floor(1000 + Math.random() * 9000)),
     student: studentName,
     reason: reason,
     duration: durationLabels[durationSelect] || durationSelect,
-    date: new Date().toLocaleString('es-CO')
+    date: 'Hoy, ' + new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
+    status: 'activa'
   });
   localStorage.setItem('cg_strike_history', JSON.stringify(strikeHistory));
 
   document.getElementById('modal-strike').classList.remove('open');
+  const field = document.getElementById('strike-student-field');
+  if (field) field.style.display = 'none';
   checkStrikeActiveStatus();
   renderReputationBadge();
   renderStaffPanel();
+  renderStrikesPanel();
   renderOrders();
   renderCart();
   updateKitchenWaitUI();
@@ -1412,6 +1926,11 @@ function advanceOrderStatus(id, newStatus) {
     if (newStatus === 'listo') {
       o.readyAt = Date.now();
       o.expiresAt = Date.now() + 15 * 60 * 1000;
+      triggerStudentNotification(o, 'listo', '¡Tu pedido ya está LISTO en barra! Tienes 15 minutos para reclamarlo.');
+    } else if (newStatus === 'preparando') {
+      triggerStudentNotification(o, 'preparando', '¡Tu pedido ha entrado en preparación en cocina!');
+    } else if (newStatus === 'entregado') {
+      triggerStudentNotification(o, 'entregado', '¡Tu pedido fue entregado en barra! Gracias por tu compra.');
     }
     localStorage.setItem('cg_orders', JSON.stringify(orders));
     renderStaffPanel();
@@ -1426,9 +1945,11 @@ function markOrderNoShow(id) {
   const o = orders.find(x => x.id === id);
   if (o) {
     o.status = 'no_reclamado';
+    o.rejectionReason = 'Superó el plazo de 15 minutos para retirar en barra';
     localStorage.setItem('cg_orders', JSON.stringify(orders));
     userStrikes++;
     localStorage.setItem('cg_strikes', userStrikes);
+    triggerStudentNotification(o, 'no_reclamado', 'Tu pedido fue cancelado por no reclamo dentro del tiempo límite.');
     renderReputationBadge();
     renderStaffPanel();
     renderOrders();
@@ -1458,6 +1979,7 @@ function quickValidateStaffCode() {
   o.status = 'entregado';
   localStorage.setItem('cg_orders', JSON.stringify(orders));
   input.value = '';
+  triggerStudentNotification(o, 'entregado', `¡Tu orden ${code} fue entregada en barra con éxito!`);
   renderStaffPanel();
   renderOrders();
   renderCart();
@@ -1501,5 +2023,31 @@ function showToast(msg) {
   clearTimeout(_toastTimeout);
   _toastTimeout = setTimeout(() => el.classList.remove('show'), 2400);
 }
+
+window.addEventListener('storage', (e) => {
+  if (e.key === 'cg_orders') {
+    const updatedList = JSON.parse(e.newValue || '[]');
+    if (Array.isArray(updatedList) && orders) {
+      const activeMineOld = orders.find(o => o.student === (currentUser ? currentUser.name : 'Estudiante Demo') && (o.status === 'recibido' || o.status === 'preparando' || o.status === 'pendiente_pago'));
+      if (activeMineOld) {
+        const matchingNew = updatedList.find(o => o.id === activeMineOld.id);
+        if (matchingNew && matchingNew.status !== activeMineOld.status) {
+          triggerStudentNotification(matchingNew, matchingNew.status, `Tu pedido ${matchingNew.id} ahora está: ${matchingNew.status.toUpperCase()}`);
+        }
+      }
+    }
+    orders = updatedList;
+    renderOrders();
+    renderCart();
+    updateKitchenWaitUI();
+    if (currentRole === 'staff') renderStaffPanel();
+  } else if (e.key === 'cg_strikes' || e.key === 'cg_strike_until') {
+    userStrikes = parseInt(localStorage.getItem('cg_strikes') || '0');
+    userStrikeUntil = parseInt(localStorage.getItem('cg_strike_until') || '0');
+    userStrikeReason = localStorage.getItem('cg_strike_reason') || '';
+    checkStrikeActiveStatus();
+    renderReputationBadge();
+  }
+});
 
 initAuth();

@@ -1021,3 +1021,241 @@
       background: var(--danger-bg);
       color: var(--danger);
     }
+    .staff-subnav {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 10px 14px;
+      background: var(--surface-subtle);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .staff-subnav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 4px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+      background: transparent;
+      border: 1px solid transparent;
+    }
+    .staff-subnav-btn.active {
+      background: var(--surface);
+      color: var(--primary);
+      border-color: var(--border);
+      font-weight: 800;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .subnav-badge {
+      position: absolute;
+      top: 2px;
+      right: 6px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: var(--radius-full);
+      min-width: 16px;
+      text-align: center;
+    }
+    .subnav-badge.danger {
+      background: var(--danger);
+    }
+    .staff-subview {
+      display: block;
+    }
+    .student-notif-toast {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 28px);
+      max-width: 520px;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--primary);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .student-notif-toast.danger {
+      border-left-color: var(--danger);
+    }
+    .student-notif-toast.warning {
+      border-left-color: var(--warning);
+    }
+    .snt-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background: var(--accent-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .student-notif-toast.danger .snt-icon {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+    .snt-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .snt-content strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+    .snt-content p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .snt-close {
+      color: var(--text-faint);
+      padding: 4px;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .calendar-controls-box {
+      padding: 14px 18px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .calendar-date-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .calendar-quick-dates {
+      display: flex;
+      gap: 4px;
+    }
+    .calendar-filter-chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .filter-chip {
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border);
+      background: var(--surface-subtle);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .filter-chip.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .filter-chip.danger.active {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+    .calendar-summary-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px 18px;
+      background: var(--surface-subtle);
+      border-bottom: 1px solid var(--border);
+    }
+    .cal-stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .cal-stat-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      display: block;
+    }
+    .cal-stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .cal-stat-danger .cal-stat-val {
+      color: var(--danger);
+    }
+    .strikes-panel-header {
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .strike-kpi-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 12px 18px;
+      background: var(--surface-subtle);
+      border-bottom: 1px solid var(--border);
+    }
+    .strike-kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      text-align: center;
+    }
+    .strike-kpi-num {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--danger);
+    }
+    .strike-kpi-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .strike-card-entry {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin: 10px 18px;
+    }
+    .strike-card-entry.active-strike {
+      border-left: 4px solid var(--danger);
+    }
+    .strike-card-entry.pardoned-strike {
+      border-left: 4px solid var(--success);
+      opacity: 0.85;
+    }

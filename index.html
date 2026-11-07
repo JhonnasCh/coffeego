@@ -49,6 +49,24 @@
     </div>
   </section>
   <div id="authenticated-app" style="display:none; flex-direction:column; min-height:100vh;">
+    <div class="student-notif-toast" id="student-notif-toast" style="display:none;" onclick="handleNotificationToastClick()">
+      <div class="snt-icon">
+        <svg class="icon-svg" viewBox="0 0 24 24">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+      </div>
+      <div class="snt-content">
+        <strong id="snt-title">Actualización de Pedido</strong>
+        <p id="snt-body">Tu pedido ha cambiado de estado.</p>
+      </div>
+      <button type="button" class="snt-close" onclick="event.stopPropagation(); closeStudentNotif()">
+        <svg class="icon-svg" style="width:14px; height:14px" viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
     <header class="header">
       <div class="brand">
         <img src="logo.jpg" alt="Logo CoffeeGo" class="brand-logo-img" />
@@ -60,6 +78,12 @@
       <div class="header-actions">
         <button class="btn-pill" id="role-indicator-badge" onclick="toggleRoleFromBadge()">
           <span id="role-badge-text">Estudiante</span>
+        </button>
+        <button class="btn-icon" id="btn-notif-bell" onclick="togglePushNotifications()" title="Activar notificaciones en este dispositivo">
+          <svg class="icon-svg" id="notif-bell-icon" viewBox="0 0 24 24">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
         </button>
         <button class="btn-icon" onclick="toggleTheme()" title="Cambiar tema">
           <svg class="icon-svg" viewBox="0 0 24 24">
@@ -310,67 +334,177 @@
         <div id="orders-feed"></div>
       </section>
       <section id="view-staff" class="view">
-        <div class="staff-stats">
-          <div class="stat-pill">
-            <div class="stat-val" id="stat-active-count">0</div>
-            <div class="stat-label">En Cola</div>
-          </div>
-          <div class="stat-pill">
-            <div class="stat-val" id="stat-ready-count">0</div>
-            <div class="stat-label">Listos</div>
-          </div>
-          <div class="stat-pill">
-            <div class="stat-val" id="stat-total-today">$0</div>
-            <div class="stat-label">Ventas Hoy</div>
-          </div>
-        </div>
-        <div class="kitchen-timing-config">
-          <div class="ktc-header">
-            <div>
-              <strong style="font-size:13px; display:block">Tiempo de Espera Estimado</strong>
-              <span style="font-size:11px; color:var(--text-muted)">Configura los minutos que ven los estudiantes</span>
-            </div>
-            <span class="mini-badge" style="background:var(--accent-light); color:var(--primary); font-size:12px; font-weight:800;" id="staff-current-wait-badge">~15 min</span>
-          </div>
-          <div class="ktc-preset-row">
-            <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(10)">10 min</button>
-            <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(15)">15 min</button>
-            <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(25)">25 min</button>
-            <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(40)">40 min</button>
-            <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(60)">60 min</button>
-            <button type="button" class="ktc-chip" id="btn-calc-auto" onclick="setKitchenWaitTime('auto')">Auto (por cola)</button>
-          </div>
-          <div class="ktc-custom-row">
-            <input type="number" id="input-custom-wait" class="input-clean" placeholder="Minutos personalizados..." min="1" max="180" style="padding:8px 10px; font-size:13px;" />
-            <button type="button" class="btn-pill" style="background:var(--primary); color:#fff; border-color:var(--primary);" onclick="applyCustomWaitTime()">Fijar</button>
-          </div>
-        </div>
-        <div class="kitchen-controls-bar">
-          <div>
-            <span style="font-size:13px; font-weight:700; display:block">Recepción de Nuevos Pedidos</span>
-            <span style="font-size:11px; color:var(--text-muted)" id="staff-pause-status">Cocina recibiendo pedidos</span>
-          </div>
-          <button class="pause-toggle-btn" id="btn-toggle-pause" onclick="toggleKitchenPause()">
-            Pausar Nuevos Pedidos
+        <div class="staff-subnav">
+          <button type="button" class="staff-subnav-btn active" id="staff-subtab-queue" onclick="switchStaffSubtab('queue')">
+            <svg class="icon-svg" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>Comandas</span>
+            <span class="subnav-badge" id="staff-badge-queue">0</span>
+          </button>
+          <button type="button" class="staff-subnav-btn" id="staff-subtab-calendar" onclick="switchStaffSubtab('calendar')">
+            <svg class="icon-svg" viewBox="0 0 24 24">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>Calendario</span>
+          </button>
+          <button type="button" class="staff-subnav-btn" id="staff-subtab-strikes" onclick="switchStaffSubtab('strikes')">
+            <svg class="icon-svg" viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span>Sanciones</span>
+            <span class="subnav-badge danger" id="staff-badge-strikes" style="display:none">0</span>
+          </button>
+          <button type="button" class="staff-subnav-btn" id="staff-subtab-settings" onclick="switchStaffSubtab('settings')">
+            <svg class="icon-svg" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>Ajustes</span>
           </button>
         </div>
-        <div style="padding: 12px 18px; border-bottom: 1px solid var(--border);">
-          <label style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px">ENTREGA RÁPIDA EN BARRA</label>
-          <div style="display:flex; gap:8px;">
-            <input type="text" id="staff-code-input" class="input-clean" placeholder="Ej: CGO-0001" style="text-transform:uppercase" />
-            <button class="btn-pill" style="background:var(--primary); color:#fff;" onclick="quickValidateStaffCode()">Entregar</button>
+
+        <div id="staff-subview-queue" class="staff-subview">
+          <div class="staff-stats">
+            <div class="stat-pill">
+              <div class="stat-val" id="stat-active-count">0</div>
+              <div class="stat-label">En Cola</div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-val" id="stat-ready-count">0</div>
+              <div class="stat-label">Listos</div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-val" id="stat-total-today">$0</div>
+              <div class="stat-label">Ventas Hoy</div>
+            </div>
+          </div>
+
+          <div style="padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--surface);">
+            <label style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px">ENTREGA RÁPIDA EN BARRA</label>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="staff-code-input" class="input-clean" placeholder="Ej: CGO-0001" style="text-transform:uppercase" />
+              <button type="button" class="btn-pill" style="background:var(--primary); color:#fff;" onclick="quickValidateStaffCode()">Entregar</button>
+            </div>
+          </div>
+
+          <div class="product-section-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <span>Comandas en vivo</span>
+            <div style="display:flex; gap:4px;">
+              <button type="button" class="ktc-chip active" id="sort-arrival" onclick="setStaffSort('arrival')">Por llegada</button>
+              <button type="button" class="ktc-chip" id="sort-priority" onclick="setStaffSort('priority')">Por rapidez</button>
+            </div>
+          </div>
+
+          <div id="staff-orders-list"></div>
+        </div>
+
+        <div id="staff-subview-calendar" class="staff-subview" style="display:none;">
+          <div class="calendar-controls-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <strong style="font-size:14px;">Calendario de Pedidos</strong>
+              <span id="calendar-current-selection-label" style="font-size:11px; color:var(--text-muted); font-weight:600;">Hoy</span>
+            </div>
+            <div class="calendar-date-bar">
+              <input type="date" id="calendar-date-picker" class="input-clean" onchange="onCalendarDatePicked(this.value)" />
+              <div class="calendar-quick-dates">
+                <button type="button" class="ktc-chip active" id="cal-btn-today" onclick="selectCalendarDate('today')">Hoy</button>
+                <button type="button" class="ktc-chip" id="cal-btn-yesterday" onclick="selectCalendarDate('yesterday')">Ayer</button>
+                <button type="button" class="ktc-chip" id="cal-btn-all" onclick="selectCalendarDate('all')">Todos</button>
+              </div>
+            </div>
+
+            <div class="calendar-filter-chips">
+              <button type="button" class="filter-chip active" id="cal-fil-all" onclick="setCalendarFilter('all')">Todos de la fecha</button>
+              <button type="button" class="filter-chip danger" id="cal-fil-cancelled" onclick="setCalendarFilter('cancelled')">Cancelados / Rechazados</button>
+              <button type="button" class="filter-chip" id="cal-fil-delivered" onclick="setCalendarFilter('delivered')">Entregados</button>
+            </div>
+          </div>
+
+          <div class="calendar-summary-cards" id="calendar-metrics-row">
+            <div class="cal-stat-card">
+              <span class="cal-stat-val" id="cal-stat-total">0</span>
+              <span class="cal-stat-label">Total Pedidos</span>
+            </div>
+            <div class="cal-stat-card">
+              <span class="cal-stat-val" id="cal-stat-income">$0</span>
+              <span class="cal-stat-label">Ingresos</span>
+            </div>
+            <div class="cal-stat-card cal-stat-danger">
+              <span class="cal-stat-val" id="cal-stat-cancelled">0</span>
+              <span class="cal-stat-label">Cancelados / Rechazados</span>
+            </div>
+          </div>
+
+          <div class="product-section-title" id="calendar-results-title">Pedidos del día seleccionado</div>
+          <div id="calendar-orders-list"></div>
+        </div>
+
+        <div id="staff-subview-strikes" class="staff-subview" style="display:none;">
+          <div class="strikes-panel-header">
+            <div>
+              <strong style="font-size:15px; display:block">Panel de Sanciones Disciplinarias</strong>
+              <p style="font-size:12px; color:var(--text-muted); margin-top:2px">Control de estudiantes con faltas y levantamiento de sanciones</p>
+            </div>
+            <button type="button" class="btn-pill" style="background:var(--danger); color:#fff; border-color:var(--danger);" onclick="openManualStrikeModal()">
+              + Sancionar
+            </button>
+          </div>
+
+          <div class="strike-kpi-row">
+            <div class="strike-kpi-card">
+              <div class="strike-kpi-num" id="kpi-active-strikes">0</div>
+              <div class="strike-kpi-lbl">Sanciones Activas</div>
+            </div>
+            <div class="strike-kpi-card">
+              <div class="strike-kpi-num" id="kpi-total-strikes">0</div>
+              <div class="strike-kpi-lbl">Historial Total</div>
+            </div>
+          </div>
+
+          <div class="product-section-title">Registro de sanciones aplicadas</div>
+          <div id="staff-strike-history-cards"></div>
+        </div>
+
+        <div id="staff-subview-settings" class="staff-subview" style="display:none;">
+          <div class="kitchen-timing-config">
+            <div class="ktc-header">
+              <div>
+                <strong style="font-size:13px; display:block">Tiempo de Espera Estimado</strong>
+                <span style="font-size:11px; color:var(--text-muted)">Configura los minutos que ven los estudiantes</span>
+              </div>
+              <span class="mini-badge" style="background:var(--accent-light); color:var(--primary); font-size:12px; font-weight:800;" id="staff-current-wait-badge">~15 min</span>
+            </div>
+            <div class="ktc-preset-row">
+              <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(10)">10 min</button>
+              <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(15)">15 min</button>
+              <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(25)">25 min</button>
+              <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(40)">40 min</button>
+              <button type="button" class="ktc-chip" onclick="setKitchenWaitTime(60)">60 min</button>
+              <button type="button" class="ktc-chip" id="btn-calc-auto" onclick="setKitchenWaitTime('auto')">Auto (por cola)</button>
+            </div>
+            <div class="ktc-custom-row">
+              <input type="number" id="input-custom-wait" class="input-clean" placeholder="Minutos personalizados..." min="1" max="180" style="padding:8px 10px; font-size:13px;" />
+              <button type="button" class="btn-pill" style="background:var(--primary); color:#fff; border-color:var(--primary);" onclick="applyCustomWaitTime()">Fijar</button>
+            </div>
+          </div>
+
+          <div class="kitchen-controls-bar">
+            <div>
+              <span style="font-size:13px; font-weight:700; display:block">Recepción de Nuevos Pedidos</span>
+              <span style="font-size:11px; color:var(--text-muted)" id="staff-pause-status">Cocina recibiendo pedidos</span>
+            </div>
+            <button type="button" class="pause-toggle-btn" id="btn-toggle-pause" onclick="toggleKitchenPause()">
+              Pausar Nuevos Pedidos
+            </button>
           </div>
         </div>
-        <div class="product-section-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-          <span>Comandas en cocina</span>
-          <div style="display:flex; gap:4px;">
-            <button class="ktc-chip active" id="sort-arrival" onclick="setStaffSort('arrival')">Por llegada</button>
-            <button class="ktc-chip" id="sort-priority" onclick="setStaffSort('priority')">Por rapidez</button>
-          </div>
-        </div>
-        <div id="staff-orders-list"></div>
-        <div class="product-section-title" style="margin-top:14px;">Historial de Sanciones</div>
-        <div id="staff-strike-history" style="margin:0 18px 18px; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; background:var(--surface);"></div>
       </section>
     </main>
     <nav class="bottom-bar">
@@ -489,6 +623,10 @@
     <div class="modal-handle"></div>
     <h3 style="font-size:16px; font-weight:800; color:var(--danger); margin-bottom:4px">Sancionar Estudiante por Comprobante Falso u Obsceno</h3>
     <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px" id="modal-strike-target">Orden: --</p>
+    <div class="cart-form-group" id="strike-student-field" style="display:none; margin-top:0;">
+      <label>Estudiante a Sancionar</label>
+      <input type="text" id="strike-manual-student-input" class="input-clean" placeholder="Nombre o código del estudiante..." />
+    </div>
     <div class="cart-form-group" style="margin-top:0">
       <label>Motivo de la Sanción</label>
       <select id="strike-reason-select" class="input-clean">
