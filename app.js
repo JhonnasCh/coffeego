@@ -397,7 +397,7 @@ function triggerStudentNotification(order, newStatus, message) {
   }
   if ('Notification' in window && Notification.permission === 'granted') {
     try {
-      new Notification(`CoffeeGo · ${order.id}`, {
+      new Notification(`CoffeeSimon · ${order.id}`, {
         body: message,
         icon: 'logo.jpg',
         badge: 'favicon.jpg',
@@ -459,7 +459,7 @@ function togglePushNotifications() {
         showToast('Notificaciones activadas para móvil y computador.');
         playNotificationSound();
         try {
-          new Notification('CoffeeGo · Notificaciones Activas', {
+          new Notification('CoffeeSimon · Notificaciones Activas', {
             body: 'Te avisaremos cuando tu orden esté en preparación o lista.',
             icon: 'logo.jpg'
           });
@@ -879,7 +879,7 @@ function renderStaticNequiQR() {
   if (!container || container.innerHTML) return;
   try {
     new QRCode(container, {
-      text: 'nequi://pay?phone=3145558920&name=CafeteriaUnisimon',
+      text: 'nequi://pay?phone=3000000000&name=CafeteriaUnisimon',
       width: 76,
       height: 76,
       colorDark: '#0a6b35',
@@ -1075,7 +1075,7 @@ function generateSimulatedNequiProof() {
   ctx.fillStyle = '#4b5563';
   ctx.font = '13px sans-serif';
   ctx.fillText('Para: Cafetería Central Unisimón', 36, 175);
-  ctx.fillText('Número: 314 555 8920', 36, 198);
+  ctx.fillText('Número: 300 000 0000', 36, 198);
   ctx.fillText('Desde: ' + (currentUser ? currentUser.name : 'Estudiante'), 36, 221);
   ctx.fillStyle = '#f3f4f6';
   ctx.fillRect(36, 250, 288, 54);
