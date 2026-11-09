@@ -1679,8 +1679,12 @@ function viewOrderTicket(id) {
 
 function setStaffSort(mode) {
   staffSortMode = mode;
-  document.getElementById('sort-arrival').classList.toggle('active', mode === 'arrival');
-  document.getElementById('sort-priority').classList.toggle('active', mode === 'priority');
+  const btnArrival = document.getElementById('sort-arrival');
+  const btnPriority = document.getElementById('sort-priority');
+  const btnSlowest = document.getElementById('sort-slowest');
+  if (btnArrival) btnArrival.classList.toggle('active', mode === 'arrival');
+  if (btnPriority) btnPriority.classList.toggle('active', mode === 'priority');
+  if (btnSlowest) btnSlowest.classList.toggle('active', mode === 'slowest');
   renderStaffPanel();
 }
 
@@ -1726,6 +1730,8 @@ function renderStaffPanel() {
   let sortedOrders = [...activeOrders];
   if (staffSortMode === 'priority') {
     sortedOrders.sort((a, b) => estimateOrderPrepTime(a) - estimateOrderPrepTime(b));
+  } else if (staffSortMode === 'slowest') {
+    sortedOrders.sort((a, b) => estimateOrderPrepTime(b) - estimateOrderPrepTime(a));
   }
 
   const container = document.getElementById('staff-orders-list');
@@ -2071,7 +2077,7 @@ function verifyNequiAndStartPrep(id) {
   if (o) {
     o.status = 'preparando';
     localStorage.setItem('cg_orders', JSON.stringify(orders));
-    triggerStudentNotification(o, 'preparando', '¡Tu pago Nequi fue validado! Tu comanda ha entrado en preparación en cocina.');
+    triggerStudentNotification(o, 'preparando', '¡Tu pago Nequi fue validado! Tu pedido ha entrado en preparación en cocina.');
     renderStaffPanel();
     renderOrders();
     renderCart();

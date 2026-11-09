@@ -379,7 +379,7 @@
               <rect x="14" y="14" width="7" height="7"></rect>
               <rect x="3" y="14" width="7" height="7"></rect>
             </svg>
-            <span>Comandas</span>
+            <span>Cola de pedidos</span>
             <span class="subnav-badge" id="staff-badge-queue">0</span>
           </button>
           <button type="button" class="staff-subnav-btn" id="staff-subtab-calendar" onclick="switchStaffSubtab('calendar')">
@@ -432,10 +432,12 @@
           </div>
 
           <div class="product-section-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-            <span>Comandas en vivo</span>
-            <div style="display:flex; gap:4px;">
-              <button type="button" class="ktc-chip active" id="sort-arrival" onclick="setStaffSort('arrival')">Por llegada</button>
-              <button type="button" class="ktc-chip" id="sort-priority" onclick="setStaffSort('priority')">Por rapidez</button>
+            <span>Cola de pedidos</span>
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Filtros:</span>
+              <button type="button" class="ktc-chip active" id="sort-arrival" onclick="setStaffSort('arrival')">Por turno</button>
+              <button type="button" class="ktc-chip" id="sort-priority" onclick="setStaffSort('priority')">Más rápidos</button>
+              <button type="button" class="ktc-chip" id="sort-slowest" onclick="setStaffSort('slowest')">Más demorados</button>
             </div>
           </div>
 
@@ -648,7 +650,7 @@
   <div class="modal-sheet" style="text-align:center;">
     <div class="modal-handle"></div>
     <h3 style="font-size:16px; font-weight:800; margin-bottom:4px">Comprobante de Transferencia Nequi</h3>
-    <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px" id="modal-viewer-info">Verificación de comanda</p>
+    <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px" id="modal-viewer-info">Verificación de pedido</p>
     <div style="background:#000; padding:10px; border-radius:var(--radius-sm); display:inline-block; max-width:100%;">
       <img id="modal-viewer-img" src="" alt="Comprobante completo" style="max-width:100%; max-height:50vh; object-fit:contain;" />
     </div>
