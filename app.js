@@ -121,7 +121,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 13,
-    image: 'https://images.unsplash.com/photo-1628106235474-0f2c418ce1c9?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=300&q=80',
     name: 'Empanadas de Carne o Pollo (x2)',
     desc: 'Empanadas doradas y crocantes de maíz colombiano con ají picante.',
     price: 3500,
