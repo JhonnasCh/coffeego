@@ -72,15 +72,37 @@
       flex-shrink: 0;
     }
     .app-container {
-      max-width: 600px;
+      max-width: 1200px;
       margin: 0 auto;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       background: var(--surface);
-      border-left: 1px solid var(--border-subtle);
-      border-right: 1px solid var(--border-subtle);
       position: relative;
+    }
+    @media (max-width: 768px) {
+      .app-container {
+        max-width: 100%;
+        border-left: none;
+        border-right: none;
+      }
+    }
+    @media (min-width: 769px) {
+      .app-container {
+        border-left: 1px solid var(--border-subtle);
+        border-right: 1px solid var(--border-subtle);
+      }
+      .product-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 2px;
+      }
+      .cart-container,
+      .ticket-card {
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+      }
     }
     #view-login {
       display: none;
