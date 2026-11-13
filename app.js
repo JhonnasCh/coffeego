@@ -359,6 +359,14 @@ if (Array.isArray(orders)) {
     if (o.student && (o.student.toLowerCase().includes('charris') || o.student.toLowerCase().includes('jhonnas'))) {
       o.student = 'Estudiante Demo';
     }
+    if (Array.isArray(o.items)) {
+      o.items.forEach(i => {
+        if (!i.image) {
+          const p = products.find(prod => prod.name === i.name);
+          if (p) i.image = p.image;
+        }
+      });
+    }
   });
 }
 
@@ -1675,6 +1683,38 @@ function reorderFromHistory(orderId) {
   showToast('Productos del pedido ' + orderId + ' agregados al carrito');
 }
 
+function getItemImage(item) {
+  if (item.image) return item.image;
+  const p = products.find(x => x.name === item.name || x.id === item.id);
+  return p ? p.image : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80';
+}
+
+function renderOrderItemsCards(items, showPrices = true) {
+  return `
+    <div class="order-items-list">
+      ${items.map(i => {
+        const img = getItemImage(i);
+        const itemTotal = (i.price || 0) * (i.qty || 1);
+        return `
+          <div class="order-item-card">
+            <img src="${img}" alt="${i.name}" class="order-item-img" loading="lazy" />
+            <div class="order-item-info">
+              <div class="order-item-name">
+                <span>${i.name}</span>
+                <span class="order-item-qty">×${i.qty}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                <span class="order-item-details">${i.details || 'Regular'}</span>
+                ${showPrices && i.price ? `<span style="font-size:11px; font-weight:700; color:var(--text-muted);">${fmtCOP(itemTotal)}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
 function renderOrders() {
   const container = document.getElementById('orders-feed');
   if (orders.length === 0) {
@@ -1725,11 +1765,26 @@ function renderOrders() {
       </div>
       ${queueHtml}
       ${rejectionHtml}
-      <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px">
-        ${o.items.map(i => `${i.name} ×${i.qty}`).join(' · ')}
+      ${renderOrderItemsCards(o.items, true)}
+      <div class="order-meta-grid">
+        <span class="order-meta-pill">
+          <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          ${o.pickupTime}
+        </span>
+        <span class="order-meta-pill">
+          <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          ${o.sede || 'Sede 1'}
+        </span>
+        <span class="order-meta-pill">
+          <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          ${o.paymentMethod}${o.cashBill ? ` (${o.cashBill === 'exact' ? 'Exacto' : 'Paga ' + fmtCOP(o.cashBill) + ' · Cambio ' + fmtCOP(o.cashChange || 0)})` : ''}
+        </span>
+        <span class="order-meta-pill">
+          ${o.orderType === 'dinein' ? `Mesa: ${o.tableNumber || 'Sin número'}` : 'Para llevar'}
+        </span>
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap">
-        <span style="font-size:13px; font-weight:700">${fmtCOP(o.total)}</span>
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; padding-top:6px; border-top:1px solid var(--border-subtle);">
+        <span style="font-size:14px; font-weight:800; color:var(--text);">${fmtCOP(o.total)}</span>
         <div style="display:flex; gap:6px; flex-wrap:wrap">
           <button class="btn-pill" onclick="viewOrderTicket('${o.id}')">Ver Ticket QR</button>
           <button class="btn-pill" style="background:var(--surface); border-color:var(--border);" onclick="downloadOrderPDF('${o.id}')">PDF</button>
@@ -1843,8 +1898,19 @@ function renderStaffPanel() {
                 <div style="font-size:11px; color:var(--text-muted)">Toca la miniatura para inspeccionar la captura</div>
               </div>
             </div>
-            <div style="font-size:12px; margin: 6px 0; color:var(--text-muted);">
-              ${o.items.map(i => `• ${i.name} × ${i.qty}`).join(' · ')}
+            ${renderOrderItemsCards(o.items, false)}
+            <div class="order-meta-grid">
+              <span class="order-meta-pill">
+                <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                ${o.pickupTime}
+              </span>
+              <span class="order-meta-pill">
+                <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                ${o.sede || 'Sede 1'}
+              </span>
+              <span class="order-meta-pill">
+                ${o.orderType === 'dinein' ? `Mesa: ${o.tableNumber || 'Sin número'}` : 'Para llevar'}
+              </span>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
               <button class="btn-action" style="margin-top:0; padding:8px 12px; font-size:12px; background:var(--primary); color:#fff; flex:1;" onclick="verifyNequiAndStartPrep('${o.id}')">
@@ -1877,11 +1943,26 @@ function renderStaffPanel() {
           <div style="display:flex; gap:6px; align-items:center; margin:4px 0 8px;">
             <span class="prep-time-badge ${prepLabel.cls}">${prepLabel.text}</span>
           </div>
-          <div style="font-size:12px; margin: 4px 0 8px; line-height:1.5;">
-            ${o.items.map(i => `• <strong>${i.name} × ${i.qty}</strong> ${i.details ? `<span style="color:var(--text-muted)">(${i.details})</span>` : ''}`).join('<br>')}
-          </div>
-          <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px">
-            Hora: ${o.pickupTime} | Modalidad: ${o.orderType === 'dinein' ? `Mesa: ${o.tableNumber || 'N/A'}` : 'Para llevar'} | Pago: ${o.paymentMethod}${o.cashBill ? ` (${o.cashBill === 'exact' ? 'Exacto' : 'Paga con ' + fmtCOP(o.cashBill) + ' · Cambio: ' + fmtCOP(o.cashChange || 0)})` : ''}
+          ${renderOrderItemsCards(o.items, false)}
+          <div class="order-meta-grid">
+            <span class="order-meta-pill">
+              <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              ${o.pickupTime}
+            </span>
+            <span class="order-meta-pill">
+              <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              ${o.sede || 'Sede 1'}
+            </span>
+            <span class="order-meta-pill">
+              <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+              ${o.paymentMethod}${o.cashBill ? ` (${o.cashBill === 'exact' ? 'Exacto' : 'Paga ' + fmtCOP(o.cashBill) + ' · Cambio ' + fmtCOP(o.cashChange || 0)})` : ''}
+            </span>
+            <span class="order-meta-pill">
+              ${o.orderType === 'dinein' ? `Mesa: ${o.tableNumber || 'Sin número'}` : 'Para llevar'}
+            </span>
+            <span class="order-meta-pill">
+              <strong style="color:var(--text);">${fmtCOP(o.total)}</strong>
+            </span>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap">
             <button class="btn-action" style="margin-top:0; padding:8px 14px; font-size:12px; flex:1;" onclick="advanceOrderStatus('${o.id}', '${nextStepMap[o.status].next}')">
@@ -2013,7 +2094,7 @@ function renderCalendarOrders() {
         <div class="order-entry-head">
           <div>
             <strong style="font-size:14px">${o.id}</strong>
-            <span style="font-size:12px; color:var(--text-muted)">(${o.student})</span>
+            <span style="font-size:12px; color:var(--text-muted)">(${o.student} · ${o.sede || 'Sede 1'})</span>
           </div>
           <span class="order-status-badge st-${o.status}">${statusNames[o.status] || o.status}</span>
         </div>
@@ -2022,12 +2103,23 @@ function renderCalendarOrders() {
             <strong>Motivo:</strong> ${o.rejectionReason}
           </div>
         ` : ''}
-        <div style="font-size:12px; margin: 4px 0 6px;">
-          ${o.items.map(i => `${i.name} ×${i.qty}`).join(' · ')}
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted)">
-          <span>Hora: ${o.date} | Pago: ${o.paymentMethod}${o.cashBill ? ` (${o.cashBill === 'exact' ? 'Exacto' : 'Paga ' + fmtCOP(o.cashBill) + ' · Cambio ' + fmtCOP(o.cashChange || 0)})` : ''}</span>
-          <strong style="font-size:13px; color:var(--text)">${fmtCOP(o.total)}</strong>
+        ${renderOrderItemsCards(o.items, false)}
+        <div class="order-meta-grid">
+          <span class="order-meta-pill">
+            <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            ${o.date}
+          </span>
+          <span class="order-meta-pill">
+            <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            ${o.sede || 'Sede 1'}
+          </span>
+          <span class="order-meta-pill">
+            <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            ${o.paymentMethod}${o.cashBill ? ` (${o.cashBill === 'exact' ? 'Exacto' : 'Paga ' + fmtCOP(o.cashBill) + ' · Cambio ' + fmtCOP(o.cashChange || 0)})` : ''}
+          </span>
+          <span class="order-meta-pill">
+            <strong style="color:var(--text);">${fmtCOP(o.total)}</strong>
+          </span>
         </div>
       </div>
     `;

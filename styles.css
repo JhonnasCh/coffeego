@@ -790,14 +790,88 @@
       padding: 4px 0;
     }
     .order-entry {
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border-subtle);
+      padding: 16px 18px;
+      margin: 12px 18px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
     .order-entry-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .order-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .order-item-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      background: var(--surface-subtle);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+    .order-item-img {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--border);
+    }
+    .order-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .order-item-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .order-item-qty {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--primary);
+      background: var(--accent-light);
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+    .order-item-details {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .order-meta-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0 12px;
+    }
+    .order-meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--surface-subtle);
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-subtle);
     }
     .order-status-badge {
       display: inline-flex;
