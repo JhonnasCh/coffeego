@@ -1518,3 +1518,31 @@
         font-size: 16px !important;
       }
     }
+    .cloud-sync-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .cs-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: var(--radius-full);
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+    }
+    .order-options-drawer {
+      background: var(--surface-subtle);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-top: 10px;
+      border: 1px dashed var(--border);
+    }

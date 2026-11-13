@@ -401,6 +401,99 @@ let lastNotifiedOrderId = null;
 let selectedRatingStars = 5;
 let selectedRateTags = [];
 
+const CLOUD_SYNC_TOPIC = 'coffeesimon_unisimon_sync_live_prod';
+const CLOUD_SYNC_URL = 'https://ntfy.sh/' + CLOUD_SYNC_TOPIC;
+let syncDeviceId = localStorage.getItem('cg_device_id');
+if (!syncDeviceId) {
+  syncDeviceId = 'dev_' + Math.random().toString(36).slice(2, 10);
+  localStorage.setItem('cg_device_id', syncDeviceId);
+}
+let syncEventSource = null;
+
+function initCloudSync() {
+  try {
+    if (syncEventSource) {
+      syncEventSource.close();
+    }
+    syncEventSource = new EventSource(CLOUD_SYNC_URL + '/sse');
+    syncEventSource.onmessage = function (e) {
+      try {
+        const payload = JSON.parse(e.data);
+        if (payload && payload.event === 'message' && payload.message) {
+          const msg = JSON.parse(payload.message);
+          handleCloudSyncMessage(msg);
+        }
+      } catch (err) {}
+    };
+    syncEventSource.onerror = function () {};
+  } catch (err) {}
+
+  fetchCloudOrders();
+}
+
+function fetchCloudOrders() {
+  fetch(CLOUD_SYNC_URL + '/json?poll=1')
+    .then(res => res.text())
+    .then(text => {
+      if (!text) return;
+      const lines = text.trim().split('\n');
+      for (let i = lines.length - 1; i >= 0; i--) {
+        try {
+          const json = JSON.parse(lines[i]);
+          if (json && json.message) {
+            const msg = JSON.parse(json.message);
+            if (msg && msg.type === 'SYNC_ORDERS' && Array.isArray(msg.orders)) {
+              mergeCloudOrders(msg.orders, msg.senderDeviceId);
+              break;
+            }
+          }
+        } catch (e) {}
+      }
+    })
+    .catch(() => {});
+}
+
+function broadcastCloudSync() {
+  try {
+    const payload = JSON.stringify({
+      type: 'SYNC_ORDERS',
+      senderDeviceId: syncDeviceId,
+      orders: orders,
+      timestamp: Date.now()
+    });
+    fetch(CLOUD_SYNC_URL, {
+      method: 'POST',
+      body: payload
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+function handleCloudSyncMessage(msg) {
+  if (!msg || msg.type !== 'SYNC_ORDERS' || !Array.isArray(msg.orders)) return;
+  if (msg.senderDeviceId === syncDeviceId) return;
+  mergeCloudOrders(msg.orders, msg.senderDeviceId);
+}
+
+function mergeCloudOrders(incomingOrders) {
+  if (!Array.isArray(incomingOrders)) return;
+  const myCurrentOrder = orders.find(o => o.student === (currentUser ? currentUser.name : 'Estudiante Demo') && (o.status === 'recibido' || o.status === 'preparando' || o.status === 'listo'));
+  orders = incomingOrders;
+  localStorage.setItem('cg_orders', JSON.stringify(orders));
+  if (myCurrentOrder) {
+    const updated = orders.find(o => o.id === myCurrentOrder.id);
+    if (updated && updated.status !== myCurrentOrder.status) {
+      triggerStudentNotification(updated, updated.status, `Tu pedido ${updated.id} ahora está: ${updated.status.toUpperCase()}`);
+    }
+  }
+  renderOrders();
+  renderCart();
+  updateKitchenWaitUI();
+  updateStudentSpendingUI();
+  if (currentRole === 'staff') {
+    renderStaffPanel();
+  }
+}
+
 function playNotificationSound() {
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1356,6 +1449,7 @@ function confirmOrder() {
   };
   orders.unshift(newOrder);
   localStorage.setItem('cg_orders', JSON.stringify(orders));
+  broadcastCloudSync();
   cart = [];
   currentUploadedProofDataUrl = '';
   document.getElementById('chk-nequi-sent').checked = false;
@@ -1786,14 +1880,100 @@ function renderOrders() {
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; padding-top:6px; border-top:1px solid var(--border-subtle);">
         <span style="font-size:14px; font-weight:800; color:var(--text);">${fmtCOP(o.total)}</span>
         <div style="display:flex; gap:6px; flex-wrap:wrap">
-          <button class="btn-pill" onclick="viewOrderTicket('${o.id}')">Ver Ticket QR</button>
-          <button class="btn-pill" style="background:var(--surface); border-color:var(--border);" onclick="downloadOrderPDF('${o.id}')">PDF</button>
-          ${reorderBtn}
+          <button type="button" class="btn-pill" onclick="viewOrderTicket('${o.id}')">Ver Ticket</button>
+          <button type="button" class="btn-pill" style="background:var(--surface); border-color:var(--border);" onclick="downloadOrderPDF('${o.id}')">PDF</button>
+          <button type="button" class="btn-pill" style="background:var(--surface-subtle); border-color:var(--border); display:flex; align-items:center; gap:4px;" onclick="toggleOrderOptions('${o.id}')">
+            <span>Opciones</span>
+            <svg class="icon-svg" style="width:11px; height:11px" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+        </div>
+      </div>
+      <div class="order-options-drawer" id="order-options-${o.id}" style="display:none;">
+        <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px;">Opciones de ${o.id}:</div>
+        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px;">
+          <button type="button" class="btn-pill" style="justify-content:center; padding:7px 10px; background:var(--accent-light); color:var(--primary); border-color:var(--primary);" onclick="reorderFromHistory('${o.id}')">
+            <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            <span>Repetir (Nueva)</span>
+          </button>
+          <button type="button" class="btn-pill" style="justify-content:center; padding:7px 10px;" onclick="viewOrderTicket('${o.id}')">
+            <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Ver QR</span>
+          </button>
+          <button type="button" class="btn-pill" style="justify-content:center; padding:7px 10px;" onclick="downloadOrderPDF('${o.id}')">
+            <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Descargar PDF</span>
+          </button>
+          ${(o.status === 'recibido' || o.status === 'pendiente_pago') ? `
+          <button type="button" class="btn-pill" style="justify-content:center; padding:7px 10px; color:var(--warning); border-color:var(--warning);" onclick="cancelStudentOrder('${o.id}')">
+            <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <span>Cancelar</span>
+          </button>
+          ` : ''}
+          <button type="button" class="btn-pill" style="justify-content:center; padding:7px 10px; color:var(--danger); border-color:var(--danger);" onclick="deleteSingleOrderFromHistory('${o.id}')">
+            <svg class="icon-svg" style="width:12px; height:12px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <span>Borrar orden</span>
+          </button>
         </div>
       </div>
     </div>
   `;
   }).join('');
+}
+
+function toggleOrderOptions(orderId) {
+  const drawer = document.getElementById('order-options-' + orderId);
+  if (!drawer) return;
+  const isHidden = drawer.style.display === 'none';
+  document.querySelectorAll('.order-options-drawer').forEach(d => d.style.display = 'none');
+  drawer.style.display = isHidden ? 'block' : 'none';
+}
+
+function cancelStudentOrder(orderId) {
+  const o = orders.find(x => x.id === orderId);
+  if (!o) return;
+  o.status = 'rechazado';
+  o.rejectionReason = 'Cancelado por el estudiante';
+  localStorage.setItem('cg_orders', JSON.stringify(orders));
+  broadcastCloudSync();
+  renderOrders();
+  renderCart();
+  updateKitchenWaitUI();
+  updateStudentSpendingUI();
+  if (currentRole === 'staff') renderStaffPanel();
+  showToast('Pedido ' + orderId + ' cancelado');
+}
+
+function deleteSingleOrderFromHistory(orderId) {
+  orders = orders.filter(x => x.id !== orderId);
+  localStorage.setItem('cg_orders', JSON.stringify(orders));
+  broadcastCloudSync();
+  renderOrders();
+  renderCart();
+  updateKitchenWaitUI();
+  updateStudentSpendingUI();
+  if (currentRole === 'staff') renderStaffPanel();
+  showToast('Orden ' + orderId + ' eliminada del historial');
+}
+
+function confirmClearOrderHistory() {
+  const modal = document.getElementById('modal-clear-history');
+  if (modal) modal.classList.add('open');
+}
+
+function executeClearHistory() {
+  const studentName = currentUser ? currentUser.name : 'Estudiante Demo';
+  const finishedStatuses = ['entregado', 'no_reclamado', 'sancionado', 'rechazado'];
+  orders = orders.filter(o => !(o.student === studentName && finishedStatuses.includes(o.status)));
+  localStorage.setItem('cg_orders', JSON.stringify(orders));
+  broadcastCloudSync();
+  const modal = document.getElementById('modal-clear-history');
+  if (modal) modal.classList.remove('open');
+  renderOrders();
+  renderCart();
+  updateKitchenWaitUI();
+  updateStudentSpendingUI();
+  if (currentRole === 'staff') renderStaffPanel();
+  showToast('Historial terminado eliminado con éxito');
 }
 
 function viewOrderTicket(id) {
@@ -2241,6 +2421,7 @@ function verifyNequiAndStartPrep(id) {
   if (o) {
     o.status = 'preparando';
     localStorage.setItem('cg_orders', JSON.stringify(orders));
+    broadcastCloudSync();
     triggerStudentNotification(o, 'preparando', '¡Tu pago Nequi fue validado! Tu pedido ha entrado en preparación en cocina.');
     renderStaffPanel();
     renderOrders();
@@ -2270,6 +2451,7 @@ function confirmRejectOrder() {
     o.status = 'rechazado';
     o.rejectionReason = reason;
     localStorage.setItem('cg_orders', JSON.stringify(orders));
+    broadcastCloudSync();
     triggerStudentNotification(o, 'rechazado', `Pago Nequi rechazado por cocina: ${reason}`);
   }
   modal.classList.remove('open');
@@ -2318,6 +2500,7 @@ function confirmApplyStrike() {
     o.status = 'sancionado';
     o.rejectionReason = reason;
     localStorage.setItem('cg_orders', JSON.stringify(orders));
+    broadcastCloudSync();
     triggerStudentNotification(o, 'sancionado', `Sanción disciplinaria aplicada: ${reason}`);
   }
 
@@ -2359,6 +2542,7 @@ function advanceOrderStatus(id, newStatus) {
       triggerStudentNotification(o, 'entregado', '¡Tu pedido fue entregado en barra! Gracias por tu compra.');
     }
     localStorage.setItem('cg_orders', JSON.stringify(orders));
+    broadcastCloudSync();
     renderStaffPanel();
     renderOrders();
     renderCart();
@@ -2374,6 +2558,7 @@ function markOrderNoShow(id) {
     o.status = 'no_reclamado';
     o.rejectionReason = 'Superó el plazo de 15 minutos para retirar en barra';
     localStorage.setItem('cg_orders', JSON.stringify(orders));
+    broadcastCloudSync();
     userStrikes++;
     localStorage.setItem('cg_strikes', userStrikes);
     triggerStudentNotification(o, 'no_reclamado', 'Tu pedido fue cancelado por no reclamo dentro del tiempo límite.');
@@ -2406,6 +2591,7 @@ function quickValidateStaffCode() {
   }
   o.status = 'entregado';
   localStorage.setItem('cg_orders', JSON.stringify(orders));
+  broadcastCloudSync();
   input.value = '';
   triggerStudentNotification(o, 'entregado', `¡Tu orden ${code} fue entregada en barra con éxito!`);
   renderStaffPanel();
@@ -2557,3 +2743,4 @@ document.addEventListener('touchend', (e) => {
 }, { passive: false });
 
 initAuth();
+initCloudSync();
