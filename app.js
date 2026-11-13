@@ -355,6 +355,7 @@ if (Array.isArray(orders)) {
   orders.forEach(o => {
     if (!o.isoDate) o.isoDate = getLocalDateISO(0);
     if (!o.studentCode) o.studentCode = '20240001';
+    if (!o.sede) o.sede = 'Sede 1';
     if (o.student && (o.student.toLowerCase().includes('charris') || o.student.toLowerCase().includes('jhonnas'))) {
       o.student = 'Estudiante Demo';
     }
@@ -507,8 +508,26 @@ function updateNotificationBellUI() {
 function initAuth() {
   try {
     const saved = localStorage.getItem('cg_session');
-    if (saved && (saved.includes('jhonnas') || saved.includes('charris'))) {
-      localStorage.removeItem('cg_session');
+    if (saved) {
+      if (saved.includes('jhonnas') || saved.includes('charris')) {
+        localStorage.removeItem('cg_session');
+      } else {
+        const session = JSON.parse(saved);
+        if (session && session.email) {
+          currentUser = session;
+          const savedSede = localStorage.getItem('cg_sede') || session.sede || '';
+          if (savedSede) {
+            currentUser.sede = savedSede;
+            applyUserSession(session);
+            updateNotificationBellUI();
+            return;
+          } else {
+            showLocationView();
+            updateNotificationBellUI();
+            return;
+          }
+        }
+      }
     }
   } catch (e) {}
   currentUser = null;
@@ -523,6 +542,8 @@ function showLoginView() {
   if (emailInput) emailInput.value = '';
   if (passInput) passInput.value = '';
   if (roleSelect) roleSelect.value = 'student';
+  const locView = document.getElementById('view-location');
+  if (locView) locView.style.display = 'none';
   document.getElementById('view-login').classList.add('active');
   document.getElementById('authenticated-app').style.display = 'none';
 }
@@ -544,14 +565,52 @@ function handleLoginSubmit(e) {
     name = prefix.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     code = '2024' + Math.floor(1000 + Math.random() * 9000);
   }
-  const session = { email, name, code, role };
+  const session = { email, name, code, role, sede: '' };
   currentUser = session;
   localStorage.setItem('cg_session', JSON.stringify(session));
-  applyUserSession(session);
   showToast('Bienvenido, ' + name);
+  showLocationView();
   if (role === 'student' && 'Notification' in window && Notification.permission === 'default') {
     setTimeout(togglePushNotifications, 1500);
   }
+}
+
+function showLocationView() {
+  document.getElementById('view-login').classList.remove('active');
+  document.getElementById('authenticated-app').style.display = 'none';
+  const locView = document.getElementById('view-location');
+  if (locView) {
+    locView.style.display = 'flex';
+    highlightCurrentSedeCard();
+  }
+}
+
+function highlightCurrentSedeCard() {
+  const current = (currentUser && currentUser.sede) || localStorage.getItem('cg_sede') || 'Sede 1';
+  document.querySelectorAll('.location-card').forEach(card => {
+    const isCurrent = card.dataset.sede === current;
+    card.classList.toggle('selected', isCurrent);
+  });
+}
+
+function selectSede(sedeName) {
+  if (currentUser) {
+    currentUser.sede = sedeName;
+    localStorage.setItem('cg_session', JSON.stringify(currentUser));
+  }
+  localStorage.setItem('cg_sede', sedeName);
+  const locView = document.getElementById('view-location');
+  if (locView) locView.style.display = 'none';
+  if (currentUser) {
+    applyUserSession(currentUser);
+    showToast('Ubicación: ' + sedeName);
+  } else {
+    showLoginView();
+  }
+}
+
+function openLocationSelection() {
+  showLocationView();
 }
 
 function fillQuickLogin(role) {
@@ -568,10 +627,16 @@ function fillQuickLogin(role) {
 
 function applyUserSession(user) {
   currentRole = user.role;
+  const userSede = user.sede || localStorage.getItem('cg_sede') || 'Sede 1';
+  user.sede = userSede;
   document.getElementById('view-login').classList.remove('active');
+  const locView = document.getElementById('view-location');
+  if (locView) locView.style.display = 'none';
   document.getElementById('authenticated-app').style.display = 'flex';
   document.getElementById('display-user-name').textContent = user.name;
   document.getElementById('display-user-sub').textContent = user.role === 'staff' ? 'Personal Cafetería' : 'Cód. ' + user.code;
+  const sedeText = document.getElementById('display-sede-text');
+  if (sedeText) sedeText.textContent = userSede;
   checkStrikeActiveStatus();
   renderReputationBadge();
   updateRoleUI();
@@ -594,6 +659,9 @@ function applyUserSession(user) {
 function logoutSession() {
   currentUser = null;
   localStorage.removeItem('cg_session');
+  localStorage.removeItem('cg_sede');
+  const locView = document.getElementById('view-location');
+  if (locView) locView.style.display = 'none';
   showLoginView();
   showToast('Sesión cerrada');
 }
@@ -1261,6 +1329,7 @@ function confirmOrder() {
     date: 'Hoy, ' + new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
     student: studentName,
     studentCode: studentCode,
+    sede: (currentUser && currentUser.sede) || localStorage.getItem('cg_sede') || 'Sede 1',
     orderType,
     tableNumber: table,
     pickupTime,
@@ -1305,6 +1374,8 @@ function showTicket(order) {
   document.getElementById('tk-student').textContent = order.student;
   const studentCodeEl = document.getElementById('tk-student-code');
   if (studentCodeEl) studentCodeEl.textContent = 'Cód. ' + (order.studentCode || (currentUser ? currentUser.code : '20240001'));
+  const tkSedeEl = document.getElementById('tk-sede');
+  if (tkSedeEl) tkSedeEl.textContent = order.sede || 'Sede 1';
   document.getElementById('tk-type').textContent = order.orderType === 'dinein' ? `Consumo en mesa (${order.tableNumber || 'Sin número'})` : 'Para llevar';
   document.getElementById('tk-time').textContent = order.pickupTime;
   document.getElementById('tk-pay').textContent = order.paymentMethod;
@@ -1494,6 +1565,7 @@ function generateReceiptHTML(order, studentCode) {
   <div class="meta">
     <div class="meta-line"><strong>Estudiante:</strong> ${order.student}</div>
     <div class="meta-line"><strong>Código Institucional:</strong> Cód. ${studentCode}</div>
+    <div class="meta-line"><strong>Sede:</strong> ${order.sede || 'Sede 1'}</div>
     <div class="meta-line"><strong>Fecha:</strong> ${order.date}</div>
     <div class="meta-line"><strong>Modalidad:</strong> ${order.orderType === 'dinein' ? `En mesa (${order.tableNumber || 'Sin número'})` : 'Para llevar'}</div>
     <div class="meta-line"><strong>Método de pago:</strong> ${order.paymentMethod}</div>
@@ -1648,7 +1720,7 @@ function renderOrders() {
     return `
     <div class="order-entry">
       <div class="order-entry-head">
-        <span style="font-size:14px; font-weight:700">${o.id} · ${o.date}</span>
+        <span style="font-size:14px; font-weight:700">${o.id} · ${o.date} · <span style="color:var(--primary); font-size:12px;">${o.sede || 'Sede 1'}</span></span>
         <span class="order-status-badge st-${o.status}">${statusNames[o.status] || o.status}</span>
       </div>
       ${queueHtml}
@@ -1752,7 +1824,7 @@ function renderStaffPanel() {
             <div class="order-entry-head">
               <div>
                 <strong style="font-size:15px; color:var(--warning);">${o.id}</strong>
-                <span style="font-size:12px; color:var(--text-muted)">(${o.student})</span>
+                <span style="font-size:12px; color:var(--text-muted)">(${o.student} · ${o.sede || 'Sede 1'})</span>
               </div>
               <span class="order-status-badge st-pendiente_pago">POR VALIDAR NEQUI</span>
             </div>
@@ -1798,7 +1870,7 @@ function renderStaffPanel() {
           <div class="order-entry-head">
             <div>
               <strong style="font-size:15px">${o.id}</strong>
-              <span style="font-size:12px; color:var(--text-muted)">(${o.student})</span>
+              <span style="font-size:12px; color:var(--text-muted)">(${o.student} · ${o.sede || 'Sede 1'})</span>
             </div>
             <span class="order-status-badge st-${o.status}">${o.status.toUpperCase()}</span>
           </div>
@@ -2380,5 +2452,16 @@ window.addEventListener('storage', (e) => {
     renderReputationBadge();
   }
 });
+
+let lastTouchEndTime = 0;
+document.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  if (now - lastTouchEndTime <= 300) {
+    if (!e.target.closest('button, a, input, select, textarea, .btn-pill, .btn-qty, .btn-action, .btn-secondary-action, .ktc-chip, .radio-card, .location-card, .tag-chip, .btn-star')) {
+      e.preventDefault();
+    }
+  }
+  lastTouchEndTime = now;
+}, { passive: false });
 
 initAuth();

@@ -48,6 +48,60 @@
       </div>
     </div>
   </section>
+  <section id="view-location" class="location-screen" style="display:none;">
+    <div class="location-header-card">
+      <div class="location-icon-bubble">
+        <svg class="icon-svg" style="width:26px; height:26px" viewBox="0 0 24 24">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+      </div>
+      <h2>¿Dónde te ubicas?</h2>
+      <p>Selecciona tu sede en la Universidad Simón Bolívar para personalizar tu menú y entrega</p>
+    </div>
+    <div class="location-cards-grid">
+      <button type="button" class="location-card" data-sede="Sede 1" onclick="selectSede('Sede 1')">
+        <div class="lc-badge">1</div>
+        <div class="lc-info">
+          <strong>Sede 1</strong>
+          <span>Campus Principal · Bloque A (Cra. 54)</span>
+        </div>
+        <svg class="icon-svg lc-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+      <button type="button" class="location-card" data-sede="Sede 2" onclick="selectSede('Sede 2')">
+        <div class="lc-badge">2</div>
+        <div class="lc-info">
+          <strong>Sede 2</strong>
+          <span>Ciencias de la Salud · Bloque B (Cra. 59)</span>
+        </div>
+        <svg class="icon-svg lc-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+      <button type="button" class="location-card" data-sede="Sede 3" onclick="selectSede('Sede 3')">
+        <div class="lc-badge">3</div>
+        <div class="lc-info">
+          <strong>Sede 3</strong>
+          <span>Ingenierías y Posgrados · Bloque C</span>
+        </div>
+        <svg class="icon-svg lc-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+      <button type="button" class="location-card" data-sede="Sede 4" onclick="selectSede('Sede 4')">
+        <div class="lc-badge">4</div>
+        <div class="lc-info">
+          <strong>Sede 4</strong>
+          <span>Bienestar Universitario · Bloque D</span>
+        </div>
+        <svg class="icon-svg lc-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+      <button type="button" class="location-card" data-sede="Sede 5" onclick="selectSede('Sede 5')">
+        <div class="lc-badge">5</div>
+        <div class="lc-info">
+          <strong>Sede 5</strong>
+          <span>Auditorios y Laboratorios · Bloque E</span>
+        </div>
+        <svg class="icon-svg lc-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+  </section>
   <div id="authenticated-app" style="display:none; flex-direction:column; min-height:100vh;">
     <div class="student-notif-toast" id="student-notif-toast" style="display:none;" onclick="handleNotificationToastClick()">
       <div class="snt-icon">
@@ -109,6 +163,13 @@
         <strong id="display-user-name">Estudiante Demo</strong>
         <span style="opacity:0.4">|</span>
         <span id="display-user-sub">Cód. 20240001</span>
+        <span class="sede-pill" id="display-user-sede" onclick="openLocationSelection()" title="Cambiar de sede">
+          <svg class="icon-svg" style="width:11px; height:11px;" viewBox="0 0 24 24">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <span id="display-sede-text">Sede 1</span>
+        </span>
         <span class="reputation-badge" id="display-reputation">Fiabilidad 100% · 0 Faltas</span>
         <span class="spending-pill" id="display-spending">Gasto acumulado: $0</span>
       </div>
@@ -339,6 +400,7 @@
           <div class="ticket-meta">
             <div><strong>Estudiante:</strong> <span id="tk-student">--</span></div>
             <div><strong>Código Institucional:</strong> <span id="tk-student-code">--</span></div>
+            <div><strong>Sede:</strong> <span id="tk-sede">Sede 1</span></div>
             <div><strong>Modalidad:</strong> <span id="tk-type">Para llevar</span></div>
             <div><strong>Hora estimada:</strong> <span id="tk-time">Lo antes posible</span></div>
             <div><strong>Pago:</strong> <span id="tk-pay">Efectivo en caja</span></div>
