@@ -400,6 +400,8 @@ let selectedCalendarFilter = 'all';
 let lastNotifiedOrderId = null;
 let selectedRatingStars = 5;
 let selectedRateTags = [];
+let viewHistory = [];
+let isNavigatingBack = false;
 
 const CLOUD_SYNC_TOPIC = 'coffeesimon_unisimon_sync_live_prod';
 const CLOUD_SYNC_URL = 'https://ntfy.sh/' + CLOUD_SYNC_TOPIC;
@@ -2668,6 +2670,11 @@ function submitRating() {
 }
 
 function switchView(name) {
+  const currentActive = document.querySelector('.view.active');
+  const currentName = currentActive ? currentActive.id.replace('view-', '') : '';
+  if (!isNavigatingBack && currentName && currentName !== name) {
+    viewHistory.push(currentName);
+  }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const target = document.getElementById('view-' + name);
   if (target) target.classList.add('active');
@@ -2678,6 +2685,28 @@ function switchView(name) {
   if (name === 'orders') renderOrders();
   if (name === 'staff') renderStaffPanel();
   if (name === 'cart') renderCart();
+  updateBackButtonVisibility(name);
+}
+
+function goBack() {
+  if (viewHistory.length === 0) {
+    switchView('menu');
+    return;
+  }
+  isNavigatingBack = true;
+  const prev = viewHistory.pop();
+  switchView(prev);
+  isNavigatingBack = false;
+}
+
+function updateBackButtonVisibility(viewName) {
+  const backBtn = document.getElementById('btn-back');
+  if (!backBtn) return;
+  if (viewName === 'menu') {
+    backBtn.style.display = 'none';
+  } else {
+    backBtn.style.display = 'flex';
+  }
 }
 
 function toggleTheme() {
