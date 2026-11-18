@@ -1,7 +1,7 @@
 const DEFAULT_PRODUCTS = [
   {
     id: 1,
-    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=75',
     name: 'Tinto Campesino',
     desc: 'Café negro colombiano recién colado en taza, con toque de panela.',
     price: 1800,
@@ -11,7 +11,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 2,
-    image: 'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=600&q=75',
     name: 'Café con Leche',
     desc: 'Espresso suave con leche entera o cremada caliente.',
     price: 2500,
@@ -21,7 +21,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 3,
-    image: 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=600&q=75',
     name: 'Aromática de Frutas',
     desc: 'Infusión caliente en vaso de cristal con yerbabuena, manzana y canela.',
     price: 1500,
@@ -31,7 +31,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 4,
-    image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=600&q=75',
     name: 'Capuchino Vainilla',
     desc: 'Espresso doble con espuma densa de leche vaporizada y canela en polvo.',
     price: 3800,
@@ -41,7 +41,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 5,
-    image: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=600&q=75',
     name: 'Chocolate Caliente',
     desc: 'Taza de chocolate de cacao colombiano tradicional bien caliente.',
     price: 2800,
@@ -51,7 +51,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 6,
-    image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=600&q=75',
     name: 'Jugo de Lulo Natural',
     desc: 'Vaso de jugo natural de pulpa de lulo servido bien frío con hielo.',
     price: 2500,
@@ -61,7 +61,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 7,
-    image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=75',
     name: 'Jugo de Maracuyá',
     desc: 'Maracuyá fresco, dulce y refrescante con hielo triturado.',
     price: 2500,
@@ -71,7 +71,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 8,
-    image: 'https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=600&q=75',
     name: 'Limonada de Coco',
     desc: 'Cremosa y fría, elaborada con crema de coco natural y limón fresco.',
     price: 3500,
@@ -81,7 +81,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 9,
-    image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=75',
     name: 'Avena Fría con Canela',
     desc: 'Avena cremosa batida con leche y un toque de canela aromática.',
     price: 2200,
@@ -91,7 +91,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 10,
-    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=75',
     name: 'Almuerzo Ejecutivo del Día',
     desc: 'Plato completo con arroz, proteína a la plancha, ensalada fresca y jugo.',
     price: 9500,
@@ -101,7 +101,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 11,
-    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=75',
     name: 'Bowl de Pollo y Ensalada',
     desc: 'Pechuga desmechada con lechuga, maíz tierno, tomates cherry y aderezo.',
     price: 8000,
@@ -111,7 +111,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 12,
-    image: 'https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=600&q=75',
     name: 'Cazuela de Frijoles',
     desc: 'Cazuela casera de frijoles rojos con plátano maduro y arroz.',
     price: 8500,
@@ -121,7 +121,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 13,
-    image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=75',
     name: 'Empanadas de Carne o Pollo (x2)',
     desc: 'Empanadas doradas y crocantes de maíz colombiano con ají picante.',
     price: 3500,
@@ -131,7 +131,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 14,
-    image: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?auto=format&fit=crop&w=600&q=75',
     name: 'Pan de Bono Caliente',
     desc: 'Pandebono recién horneado con queso costeño y almidón de yuca.',
     price: 2000,
@@ -141,7 +141,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 15,
-    image: 'https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?auto=format&fit=crop&w=600&q=75',
     name: 'Buñuelo Tradicional',
     desc: 'Buñuelo redondo, crocante por fuera y suave esponjoso por dentro.',
     price: 1600,
@@ -151,7 +151,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 16,
-    image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=600&q=75',
     name: 'Arepa de Choclo con Queso',
     desc: 'Arepa dulce de maíz tierno asada con mantequilla y queso derretido.',
     price: 3200,
@@ -161,7 +161,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 17,
-    image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=600&q=75',
     name: 'Brownie Artesanal',
     desc: 'Porción melcochuda de brownie de chocolate semiamargo con nueces.',
     price: 3500,
@@ -171,7 +171,7 @@ const DEFAULT_PRODUCTS = [
   },
   {
     id: 18,
-    image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=300&q=80',
+    image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=75',
     name: 'Postre de Tres Leches',
     desc: 'Torta húmeda tradicional bañada en salsa de tres leches.',
     price: 3800,
@@ -949,39 +949,39 @@ function renderProducts() {
   if (query) {
     list = list.filter(p => p.name.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query) || p.cat.toLowerCase().includes(query));
   }
-  label.textContent = currentCategory === 'Todos' ? (query ? 'Resultados de búsqueda' : 'Todos los productos') : currentCategory;
+  const catTitles = { 'Todos': 'La carta de hoy', 'Bebidas calientes': 'Cafés y calientes', 'Bebidas frías': 'Bebidas frías', 'Favoritos': 'Tus favoritos' };
+  label.textContent = query ? `Resultados para “${query}”` : (catTitles[currentCategory] || currentCategory);
   if (list.length === 0) {
     container.innerHTML = `
-      <div style="text-align:center; padding: 40px 16px; color: var(--text-muted)">
-        <p style="font-size:14px; font-weight:700">No encontramos productos en esta sección</p>
-        <p style="font-size:12px; margin-top:4px">Intenta buscando con otro término o categoría.</p>
+      <div class="empty-state">
+        <strong>${currentCategory === 'Favoritos' ? 'Aún no tienes favoritos' : 'Nada por aquí'}</strong>
+        <p>${currentCategory === 'Favoritos' ? 'Toca el corazón de un producto para guardarlo.' : 'Prueba con otra palabra o categoría.'}</p>
       </div>`;
     return;
   }
+  const showCat = currentCategory === 'Todos' || currentCategory === 'Favoritos' || !!query;
   container.innerHTML = list.map(p => {
     const isFav = favorites.includes(p.id);
     return `
-      <div class="product-row ${p.available ? '' : 'disabled'}" onclick="${p.available ? `openProductModal(${p.id})` : ''}">
+      <article class="product-row ${p.available ? '' : 'disabled'}" onclick="${p.available ? `openProductModal(${p.id})` : ''}">
         <div class="product-img-box">
           <img src="${p.image}" alt="${p.name}" loading="lazy" />
         </div>
         <div class="product-details">
-          <div class="product-meta">
-            <span class="product-title">${p.name}</span>
-            <span class="product-price">${fmtCOP(p.price)}</span>
-          </div>
-          <div class="product-desc">${p.desc}</div>
+          <h3 class="product-title">${p.name}</h3>
+          <p class="product-desc">${p.desc}</p>
           <div class="product-badge-row">
-            <span class="mini-badge">${p.cat}</span>
-            ${!p.available ? '<span class="mini-badge out">Agotado</span>' : '<span class="mini-badge" style="color:var(--success)">Disponible</span>'}
+            <span class="product-price">${fmtCOP(p.price)}</span>
+            ${showCat ? `<span class="product-cat">${p.cat}</span>` : ''}
+            ${!p.available ? '<span class="mini-badge out">Agotado</span>' : ''}
           </div>
         </div>
-        <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, ${p.id})" title="Favorito">
-          <svg class="icon-svg" style="width:16px; height:16px" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}">
+        <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, ${p.id})" title="${isFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}" aria-label="Favorito" aria-pressed="${isFav}">
+          <svg class="icon-svg" style="width:18px; height:18px" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
           </svg>
         </button>
-      </div>
+      </article>
     `;
   }).join('');
 }
@@ -1193,7 +1193,7 @@ function renderCart() {
   } else {
     warning.style.display = 'none';
     confirmBtn.disabled = false;
-    confirmBtn.textContent = 'Confirmar y Generar Código QR';
+    confirmBtn.textContent = 'Confirmar pedido';
   }
   let subtotal = 0;
   wrapper.innerHTML = cart.map((item, idx) => {
@@ -1782,7 +1782,7 @@ function reorderFromHistory(orderId) {
 function getItemImage(item) {
   if (item.image) return item.image;
   const p = products.find(x => x.name === item.name || x.id === item.id);
-  return p ? p.image : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80';
+  return p ? p.image : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=75';
 }
 
 function renderOrderItemsCards(items, showPrices = true) {
@@ -2095,7 +2095,7 @@ function renderStaffPanel() {
               </span>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
-              <button class="btn-action" style="margin-top:0; padding:8px 12px; font-size:12px; background:var(--primary); color:#fff; flex:1;" onclick="verifyNequiAndStartPrep('${o.id}')">
+              <button class="btn-action" style="margin-top:0; padding:8px 12px; font-size:12px; background:var(--primary); color:var(--on-primary); flex:1;" onclick="verifyNequiAndStartPrep('${o.id}')">
                 Aprobar Pago y Empezar a Cocinar
               </button>
               <button class="btn-secondary-action" style="margin-top:0; padding:8px 12px; font-size:12px; width:auto; color:var(--warning); border-color:var(--warning);" onclick="openRejectModal('${o.id}', '${o.student}')">

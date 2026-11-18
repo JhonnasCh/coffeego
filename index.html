@@ -8,7 +8,8 @@
   <link rel="icon" type="image/jpeg" href="favicon.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#f5f0e6" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -17,10 +18,12 @@
   <section id="view-login" class="active">
     <div class="login-brand-card">
       <img src="logo.jpg" alt="Logo Cafetería Unisimón" class="login-logo-img" />
-      <h1>CoffeeSimon · Unisimón</h1>
-      <p>Acceso institucional a cafetería universitaria</p>
+      <h1>Pide entre clases.<br><em>Recoge sin fila.</em></h1>
+      <p>CoffeeSimon, la cafetería de la Universidad Simón Bolívar.</p>
     </div>
     <div class="login-form-box">
+      <h2>Iniciar sesión</h2>
+      <p class="login-lead">Usa tu correo institucional de Unisimón.</p>
       <form onsubmit="handleLoginSubmit(event)">
         <div class="field-group">
           <label for="login-email">Correo Institucional</label>
@@ -37,10 +40,10 @@
             <option value="staff">Personal de Cafetería (Cocina & Barra)</option>
           </select>
         </div>
-        <button type="submit" class="btn-action">Iniciar Sesión Institucional</button>
+        <button type="submit" class="btn-action">Entrar</button>
       </form>
-      <div style="margin-top: 18px; text-align: center;">
-        <span style="font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.05em">Accesos de prueba rápida</span>
+      <div class="demo-access">
+        <span class="demo-access-label">¿Solo quieres probar? Entra con una cuenta demo:</span>
         <div class="demo-login-grid">
           <button type="button" class="btn-demo" onclick="fillQuickLogin('student')">Demo Estudiante</button>
           <button type="button" class="btn-demo" onclick="fillQuickLogin('staff')">Demo Personal</button>
@@ -170,7 +173,7 @@
           <circle cx="12" cy="7" r="4"></circle>
         </svg>
         <strong id="display-user-name">Estudiante Demo</strong>
-        <span style="opacity:0.4">|</span>
+        <span class="user-strip-sep">|</span>
         <span id="display-user-sub">Cód. 20240001</span>
         <span class="sede-pill" id="display-user-sede" onclick="openLocationSelection()" title="Cambiar de sede">
           <svg class="icon-svg" style="width:11px; height:11px;" viewBox="0 0 24 24">
@@ -315,7 +318,7 @@
               <div id="nequi-info-box" class="nequi-box" style="display:none;">
                 <div class="nequi-header">
                   <div>
-                    <strong style="color:var(--primary); font-size:13px; display:block">PAGO DIRECTO POR NEQUI</strong>
+                    <strong style="color:var(--text); font-size:14px; display:block">Pago por Nequi</strong>
                     <span style="font-size:11px; color:var(--text-muted)">Escanea el QR o transfiere al número oficial</span>
                   </div>
                 </div>
@@ -376,7 +379,7 @@
                 <span id="sum-total">$0</span>
               </div>
             </div>
-            <button class="btn-action" id="btn-confirm-order" onclick="confirmOrder()">Confirmar y Generar Código QR</button>
+            <button class="btn-action" id="btn-confirm-order" onclick="confirmOrder()">Confirmar pedido</button>
           </div>
         </div>
       </section>
@@ -422,25 +425,25 @@
             <span>Total</span>
             <span id="tk-total">$0</span>
           </div>
-          <button type="button" class="btn-action" style="margin-top:14px; background:var(--surface); color:var(--primary); border:2px solid var(--primary); display:flex; align-items:center; justify-content:center; gap:8px;" onclick="downloadCurrentTicketPDF()">
+          <button type="button" class="btn-secondary-action" style="margin-top:16px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="downloadCurrentTicketPDF()">
             <svg class="icon-svg" style="width:16px; height:16px" viewBox="0 0 24 24">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
             </svg>
-            <span>Descargar Comprobante (PDF)</span>
+            <span>Descargar comprobante (PDF)</span>
           </button>
-          <button class="btn-action" style="margin-top:8px" onclick="switchView('orders')">Ver Estado en Mis Pedidos</button>
-          <button class="btn-secondary-action" onclick="switchView('menu')">Volver al Menú</button>
+          <button class="btn-action" style="margin-top:8px" onclick="switchView('orders')">Seguir mi pedido</button>
+          <button class="btn-secondary-action" onclick="switchView('menu')">Volver al menú</button>
         </div>
       </section>
       <section id="view-orders" class="view">
-        <div style="padding: 18px 18px 8px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+        <div class="view-head">
           <div>
             <h2 class="section-headline">Mis Pedidos</h2>
             <p class="section-subtitle">Sigue en tiempo real la preparación y retiro de tus órdenes</p>
           </div>
-          <button type="button" class="btn-pill" style="border-color:var(--danger); color:var(--danger); background:var(--danger-bg); font-size:11px;" onclick="confirmClearOrderHistory()">
+          <button type="button" class="btn-pill" style="border-color:transparent; color:var(--danger); background:transparent;" onclick="confirmClearOrderHistory()">
             <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             <span>Borrar Historial</span>
           </button>
@@ -501,17 +504,17 @@
           </div>
 
           <div style="padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--surface);">
-            <label style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px">ENTREGA RÁPIDA EN BARRA</label>
+            <label style="color:var(--text-muted); display:block; margin-bottom:6px">Entrega rápida en barra</label>
             <div style="display:flex; gap:8px;">
               <input type="text" id="staff-code-input" class="input-clean" placeholder="Ej: CGO-0001" style="text-transform:uppercase" />
-              <button type="button" class="btn-pill" style="background:var(--primary); color:#fff;" onclick="quickValidateStaffCode()">Entregar</button>
+              <button type="button" class="btn-pill" style="background:var(--primary); color:var(--on-primary);" onclick="quickValidateStaffCode()">Entregar</button>
             </div>
           </div>
 
           <div class="product-section-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-            <span>Cola de pedidos</span>
+            <span>En cola</span>
             <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-              <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Filtros:</span>
+              <span style="font-size:13px; font-weight:500; color:var(--text-muted);">Ordenar:</span>
               <button type="button" class="ktc-chip active" id="sort-arrival" onclick="setStaffSort('arrival')">Por turno</button>
               <button type="button" class="ktc-chip" id="sort-priority" onclick="setStaffSort('priority')">Más rápidos</button>
               <button type="button" class="ktc-chip" id="sort-slowest" onclick="setStaffSort('slowest')">Más demorados</button>
@@ -607,7 +610,7 @@
             </div>
             <div class="ktc-custom-row">
               <input type="number" id="input-custom-wait" class="input-clean" placeholder="Minutos personalizados..." min="1" max="180" style="padding:8px 10px; font-size:13px;" />
-              <button type="button" class="btn-pill" style="background:var(--primary); color:#fff; border-color:var(--primary);" onclick="applyCustomWaitTime()">Fijar</button>
+              <button type="button" class="btn-pill" style="background:var(--primary); color:var(--on-primary); border-color:var(--primary);" onclick="applyCustomWaitTime()">Fijar</button>
             </div>
           </div>
 
