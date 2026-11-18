@@ -202,154 +202,7 @@ let products = DEFAULT_PRODUCTS;
 let favorites = JSON.parse(localStorage.getItem('cg_favs') || '[]');
 let cart = JSON.parse(localStorage.getItem('cg_cart') || '[]');
 
-let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [
-  {
-    id: 'CGO-0003',
-    isoDate: getLocalDateISO(0),
-    date: 'Hoy, 10:15 AM',
-    student: 'Estudiante Demo',
-    studentCode: '20240001',
-    orderType: 'takeaway',
-    tableNumber: '',
-    pickupTime: 'Lo antes posible',
-    paymentMethod: 'Nequi',
-    cashBill: null,
-    cashChange: 0,
-    nequiRef: 'M7829104',
-    proofImage: '',
-    items: [
-      { name: 'Empanadas de Carne o Pollo (x2)', qty: 1, price: 3500, details: '' },
-      { name: 'Jugo de Lulo Natural', qty: 1, price: 2500, details: '' }
-    ],
-    total: 6000,
-    status: 'preparando',
-    token: 'tok_demo3',
-    readyAt: null,
-    expiresAt: null,
-    rejectionReason: null
-  },
-  {
-    id: 'CGO-0002',
-    isoDate: getLocalDateISO(0),
-    date: 'Hoy, 09:50 AM',
-    student: 'Estudiante Demo',
-    studentCode: '20240001',
-    orderType: 'takeaway',
-    tableNumber: '',
-    pickupTime: 'Lo antes posible',
-    paymentMethod: 'Efectivo en caja',
-    cashBill: 10000,
-    cashChange: 6200,
-    nequiRef: '',
-    proofImage: '',
-    items: [
-      { name: 'Capuchino Vainilla', qty: 1, price: 3800, details: 'Regular · Entera' }
-    ],
-    total: 3800,
-    status: 'recibido',
-    token: 'tok_demo2',
-    readyAt: null,
-    expiresAt: null,
-    rejectionReason: null
-  },
-  {
-    id: 'CGO-0001',
-    isoDate: getLocalDateISO(0),
-    date: 'Hoy, 09:20 AM',
-    student: 'Estudiante Demo',
-    studentCode: '20240001',
-    orderType: 'takeaway',
-    tableNumber: '',
-    pickupTime: 'Lo antes posible',
-    paymentMethod: 'Efectivo en caja',
-    cashBill: 'exact',
-    cashChange: 0,
-    nequiRef: '',
-    proofImage: '',
-    items: [
-      { name: 'Café con Leche', qty: 1, price: 2500, details: 'Regular · Entera' },
-      { name: 'Pan de Bono Caliente', qty: 2, price: 2000, details: '' }
-    ],
-    total: 6500,
-    status: 'entregado',
-    token: 'tok_demo1',
-    readyAt: null,
-    expiresAt: null,
-    rejectionReason: null
-  },
-  {
-    id: 'CGO-9999',
-    isoDate: getLocalDateISO(-1),
-    date: 'Ayer, 11:30 AM',
-    student: 'Estudiante Demo',
-    studentCode: '20240001',
-    orderType: 'takeaway',
-    tableNumber: '',
-    pickupTime: 'En 30 minutos',
-    paymentMethod: 'Nequi',
-    cashBill: null,
-    cashChange: 0,
-    nequiRef: 'M4481920',
-    proofImage: '',
-    items: [
-      { name: 'Brownie Artesanal', qty: 1, price: 3500, details: '' }
-    ],
-    total: 3500,
-    status: 'rechazado',
-    token: 'tok_demo_rej',
-    readyAt: null,
-    expiresAt: null,
-    rejectionReason: 'El comprobante enviado no corresponde con el valor de la orden'
-  },
-  {
-    id: 'CGO-9998',
-    isoDate: getLocalDateISO(-1),
-    date: 'Ayer, 01:10 PM',
-    student: 'Estudiante Demo',
-    studentCode: '20240001',
-    orderType: 'dinein',
-    tableNumber: 'Mesa 4',
-    pickupTime: 'Lo antes posible',
-    paymentMethod: 'Efectivo en caja',
-    cashBill: 20000,
-    cashChange: 10500,
-    nequiRef: '',
-    proofImage: '',
-    items: [
-      { name: 'Almuerzo Ejecutivo del Día', qty: 1, price: 9500, details: '' }
-    ],
-    total: 9500,
-    status: 'entregado',
-    token: 'tok_demo_ent',
-    readyAt: null,
-    expiresAt: null,
-    rejectionReason: null
-  },
-  {
-    id: 'CGO-9997',
-    isoDate: getLocalDateISO(-1),
-    date: 'Ayer, 04:15 PM',
-    student: 'Estudiante Demo',
-    studentCode: '20240001',
-    orderType: 'takeaway',
-    tableNumber: '',
-    pickupTime: 'Lo antes posible',
-    paymentMethod: 'Efectivo en caja',
-    cashBill: 'exact',
-    cashChange: 0,
-    nequiRef: '',
-    proofImage: '',
-    items: [
-      { name: 'Avena Fría con Canela', qty: 2, price: 2200, details: '' }
-    ],
-    total: 4400,
-    status: 'no_reclamado',
-    token: 'tok_demo_noshow',
-    readyAt: null,
-    expiresAt: null,
-    rejectionReason: 'Superó los 15 minutos de tolerancia para retirar en barra'
-  }
-];
+let orders = JSON.parse(localStorage.getItem('cg_orders') || 'null') || [];
 
 if (Array.isArray(orders)) {
   orders.forEach(o => {
@@ -403,97 +256,214 @@ let selectedRateTags = [];
 let viewHistory = [];
 let isNavigatingBack = false;
 
+// =====================================================================
+// Sincronización multi-dispositivo (ntfy.sh)
+// Cada cambio viaja como un mensaje pequeño con UN solo pedido
+// (ORDER_UPSERT). Los dispositivos fusionan pedido por pedido usando
+// updatedAt, así ningún dispositivo borra los pedidos de otro.
+// Los comprobantes Nequi se suben aparte como archivo adjunto.
+// =====================================================================
 const CLOUD_SYNC_TOPIC = 'coffeesimon_unisimon_sync_live_prod';
 const CLOUD_SYNC_URL = 'https://ntfy.sh/' + CLOUD_SYNC_TOPIC;
+const CLOUD_FILES_URL = CLOUD_SYNC_URL + '_files';
+const CLOUD_SYNC_HISTORY = '12h';      // tiempo que ntfy.sh guarda los mensajes
+const CLOUD_MAX_MESSAGE_BYTES = 3800;  // ntfy.sh convierte en archivo todo lo que pase de 4096 bytes
 let syncDeviceId = localStorage.getItem('cg_device_id');
 if (!syncDeviceId) {
   syncDeviceId = 'dev_' + Math.random().toString(36).slice(2, 10);
   localStorage.setItem('cg_device_id', syncDeviceId);
 }
 let syncEventSource = null;
+let syncOutbox = JSON.parse(localStorage.getItem('cg_sync_outbox') || '[]');
+let syncFlushing = false;
+let syncRenderTimer = null;
+let hiddenOrderIds = JSON.parse(localStorage.getItem('cg_hidden_orders') || '[]');
 
 function initCloudSync() {
   try {
-    if (syncEventSource) {
-      syncEventSource.close();
-    }
+    if (syncEventSource) syncEventSource.close();
     syncEventSource = new EventSource(CLOUD_SYNC_URL + '/sse');
     syncEventSource.onmessage = function (e) {
       try {
         const payload = JSON.parse(e.data);
         if (payload && payload.event === 'message' && payload.message) {
-          const msg = JSON.parse(payload.message);
-          handleCloudSyncMessage(msg);
+          applySyncMessage(JSON.parse(payload.message));
         }
       } catch (err) {}
     };
+    // Al reconectar (wifi del campus, celular que estuvo en segundo plano)
+    // se vuelven a pedir los mensajes recientes para no perder cambios.
+    syncEventSource.onopen = function () { fetchCloudOrders(); flushSyncOutbox(); };
     syncEventSource.onerror = function () {};
   } catch (err) {}
-
   fetchCloudOrders();
+  flushSyncOutbox();
 }
 
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') { fetchCloudOrders(); flushSyncOutbox(); }
+});
+window.addEventListener('online', () => { fetchCloudOrders(); flushSyncOutbox(); });
+
 function fetchCloudOrders() {
-  fetch(CLOUD_SYNC_URL + '/json?poll=1')
+  fetch(CLOUD_SYNC_URL + '/json?poll=1&since=' + CLOUD_SYNC_HISTORY)
     .then(res => res.text())
     .then(text => {
       if (!text) return;
-      const lines = text.trim().split('\n');
-      for (let i = lines.length - 1; i >= 0; i--) {
+      // Se aplican TODOS los mensajes en orden (antes solo se usaba el último).
+      text.trim().split('\n').forEach(line => {
         try {
-          const json = JSON.parse(lines[i]);
-          if (json && json.message) {
-            const msg = JSON.parse(json.message);
-            if (msg && msg.type === 'SYNC_ORDERS' && Array.isArray(msg.orders)) {
-              mergeCloudOrders(msg.orders, msg.senderDeviceId);
-              break;
-            }
-          }
+          const json = JSON.parse(line);
+          if (json && json.message) applySyncMessage(JSON.parse(json.message));
         } catch (e) {}
-      }
+      });
     })
     .catch(() => {});
 }
 
-function broadcastCloudSync() {
+function applySyncMessage(msg) {
+  if (!msg) return;
+  if (msg.type === 'ORDER_UPSERT' && msg.order) {
+    mergeCloudOrder(msg.order);
+  } else if (msg.type === 'SYNC_ORDERS' && Array.isArray(msg.orders)) {
+    // Formato antiguo (lista completa): se fusiona pedido por pedido, nunca reemplaza.
+    msg.orders.forEach(o => mergeCloudOrder(Object.assign({}, o, { updatedAt: o.updatedAt || msg.timestamp || 0 })));
+  }
+}
+
+function mergeCloudOrder(incoming) {
+  if (!incoming || !incoming.id || !Array.isArray(incoming.items)) return;
+  const idx = orders.findIndex(o => o.id === incoming.id);
+  if (idx === -1) {
+    orders.push(incoming);
+    orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    scheduleSyncRender(null, incoming);
+    return;
+  }
+  const local = orders[idx];
+  if ((incoming.updatedAt || 0) <= (local.updatedAt || 0)) return;
+  orders[idx] = incoming;
+  scheduleSyncRender(local, incoming);
+}
+
+function scheduleSyncRender(before, after) {
+  const myName = currentUser ? currentUser.name : 'Estudiante Demo';
+  if (before && after && before.status !== after.status && after.student === myName && currentRole !== 'staff') {
+    triggerStudentNotification(after, after.status, `Tu pedido ${after.id} ahora está: ${after.status.toUpperCase()}`);
+  }
+  clearTimeout(syncRenderTimer);
+  syncRenderTimer = setTimeout(() => {
+    saveOrdersLocal();
+    renderOrders();
+    renderCart();
+    updateKitchenWaitUI();
+    updateStudentSpendingUI();
+    if (currentRole === 'staff') renderStaffPanel();
+  }, 60);
+}
+
+function saveOrdersLocal() {
   try {
-    const payload = JSON.stringify({
-      type: 'SYNC_ORDERS',
-      senderDeviceId: syncDeviceId,
-      orders: orders,
-      timestamp: Date.now()
-    });
-    fetch(CLOUD_SYNC_URL, {
-      method: 'POST',
-      body: payload
-    }).catch(() => {});
-  } catch (e) {}
+    localStorage.setItem('cg_orders', JSON.stringify(orders));
+  } catch (e) {
+    // localStorage lleno: se recortan los pedidos más viejos ya terminados
+    const finished = ['entregado', 'no_reclamado', 'sancionado', 'rechazado'];
+    const trimmed = orders.filter((o, i) => i < 150 || !finished.includes(o.status));
+    try { localStorage.setItem('cg_orders', JSON.stringify(trimmed)); } catch (e2) {}
+  }
 }
 
-function handleCloudSyncMessage(msg) {
-  if (!msg || msg.type !== 'SYNC_ORDERS' || !Array.isArray(msg.orders)) return;
-  if (msg.senderDeviceId === syncDeviceId) return;
-  mergeCloudOrders(msg.orders, msg.senderDeviceId);
+// Guarda un pedido modificado y lo envía a los demás dispositivos.
+function commitOrder(order) {
+  if (!order) return;
+  // updatedAt siempre crece aunque el reloj de este celular esté atrasado
+  order.updatedAt = Math.max(Date.now(), (order.updatedAt || 0) + 1);
+  if (!order.createdAt) order.createdAt = order.updatedAt;
+  saveOrdersLocal();
+  publishOrder(order);
 }
 
-function mergeCloudOrders(incomingOrders) {
-  if (!Array.isArray(incomingOrders)) return;
-  const myCurrentOrder = orders.find(o => o.student === (currentUser ? currentUser.name : 'Estudiante Demo') && (o.status === 'recibido' || o.status === 'preparando' || o.status === 'listo'));
-  orders = incomingOrders;
-  localStorage.setItem('cg_orders', JSON.stringify(orders));
-  if (myCurrentOrder) {
-    const updated = orders.find(o => o.id === myCurrentOrder.id);
-    if (updated && updated.status !== myCurrentOrder.status) {
-      triggerStudentNotification(updated, updated.status, `Tu pedido ${updated.id} ahora está: ${updated.status.toUpperCase()}`);
+function buildOrderPayload(order) {
+  const make = (o) => JSON.stringify({ v: 2, type: 'ORDER_UPSERT', senderDeviceId: syncDeviceId, order: o });
+  let payload = make(order);
+  if (new Blob([payload]).size <= CLOUD_MAX_MESSAGE_BYTES) return payload;
+  // Pedido muy grande: se quitan las fotos de los productos (se recuperan del menú)
+  const slim = Object.assign({}, order, {
+    items: order.items.map(i => ({ name: i.name, id: i.id, qty: i.qty, price: i.price, details: i.details }))
+  });
+  payload = make(slim);
+  if (new Blob([payload]).size <= CLOUD_MAX_MESSAGE_BYTES) return payload;
+  slim.items = slim.items.map(i => ({ name: i.name, qty: i.qty, price: i.price, details: (i.details || '').slice(0, 40) }));
+  return make(slim);
+}
+
+function publishOrder(order) {
+  syncOutbox = syncOutbox.filter(p => {
+    try { return JSON.parse(p).order.id !== order.id; } catch (e) { return false; }
+  });
+  syncOutbox.push(buildOrderPayload(order));
+  localStorage.setItem('cg_sync_outbox', JSON.stringify(syncOutbox));
+  flushSyncOutbox();
+}
+
+// Envía en orden los cambios pendientes; si no hay internet quedan guardados
+// y se reintentan al volver la conexión.
+async function flushSyncOutbox() {
+  if (syncFlushing || syncOutbox.length === 0) return;
+  syncFlushing = true;
+  let failed = false;
+  try {
+    while (syncOutbox.length > 0) {
+      const payload = syncOutbox[0];
+      const res = await fetch(CLOUD_SYNC_URL, { method: 'POST', body: payload });
+      if (!res.ok) throw new Error('ntfy ' + res.status);
+      syncOutbox.shift();
+      localStorage.setItem('cg_sync_outbox', JSON.stringify(syncOutbox));
     }
+  } catch (e) {
+    failed = true;
+  } finally {
+    syncFlushing = false;
   }
-  renderOrders();
-  renderCart();
-  updateKitchenWaitUI();
-  updateStudentSpendingUI();
-  if (currentRole === 'staff') {
-    renderStaffPanel();
-  }
+  if (failed) setTimeout(flushSyncOutbox, 8000);
+}
+
+// Comprime la captura y la sube como adjunto. Devuelve la URL pública (dura 3 horas).
+async function uploadProofImage(dataUrl) {
+  const img = await new Promise((resolve, reject) => {
+    const im = new Image();
+    im.onload = () => resolve(im);
+    im.onerror = reject;
+    im.src = dataUrl;
+  });
+  const maxSide = 1000;
+  const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(img.width * scale);
+  canvas.height = Math.round(img.height * scale);
+  canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+  const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.72));
+  const res = await fetch(CLOUD_FILES_URL, {
+    method: 'PUT',
+    body: blob,
+    headers: { 'Filename': 'comprobante.jpg' }
+  });
+  if (!res.ok) throw new Error('upload ' + res.status);
+  const json = await res.json();
+  if (!json.attachment || !json.attachment.url) throw new Error('sin url');
+  return json.attachment.url;
+}
+
+// Código corto, fácil de dictar en barra, y prácticamente imposible de repetir
+// entre dos celulares (antes era "cantidad de pedidos + 1").
+function generateOrderId() {
+  const alphabet = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+  let id;
+  do {
+    id = 'CGO-';
+    for (let i = 0; i < 4; i++) id += alphabet[Math.floor(Math.random() * alphabet.length)];
+  } while (orders.some(o => o.id === id));
+  return id;
 }
 
 function playNotificationSound() {
@@ -1383,7 +1353,7 @@ function getQueuePosition(orderId) {
   return { position, total: activeOrders.length };
 }
 
-function confirmOrder() {
+async function confirmOrder() {
   if (cart.length === 0) return;
   if (kitchenPaused) {
     showToast('La cocina está temporalmente pausada por alta demanda');
@@ -1412,15 +1382,27 @@ function confirmOrder() {
       return;
     }
     nequiRef = document.getElementById('nequi-ref-input').value.trim().toUpperCase() || ('REF-' + Math.floor(100000 + Math.random() * 900000));
-    proofImage = currentUploadedProofDataUrl;
     initialStatus = 'pendiente_pago';
+    const btn = document.getElementById('btn-confirm-order');
+    const prevText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Subiendo comprobante…';
+    try {
+      proofImage = await uploadProofImage(currentUploadedProofDataUrl);
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = prevText;
+      showToast('No se pudo subir la captura. Revisa tu conexión e intenta de nuevo.');
+      return;
+    }
+    btn.disabled = false;
+    btn.textContent = prevText;
   } else {
     cashBill = selectedCashBill;
     cashChange = (selectedCashBill === 'exact' ? 0 : Math.max(0, selectedCashBill - total));
   }
 
-  const orderNum = orders.length + 1;
-  const id = 'CGO-' + String(orderNum).padStart(4, '0');
+  const id = generateOrderId();
   const table = orderType === 'dinein' ? (document.getElementById('table-number-input').value.trim() || 'En mesa') : '';
   const pickupTime = document.getElementById('cart-pickup-time').value;
   const studentName = currentUser ? currentUser.name : 'Estudiante Demo';
@@ -1450,8 +1432,7 @@ function confirmOrder() {
     rejectionReason: null
   };
   orders.unshift(newOrder);
-  localStorage.setItem('cg_orders', JSON.stringify(orders));
-  broadcastCloudSync();
+  commitOrder(newOrder);
   cart = [];
   currentUploadedProofDataUrl = '';
   document.getElementById('chk-nequi-sent').checked = false;
@@ -1811,9 +1792,18 @@ function renderOrderItemsCards(items, showPrices = true) {
   `;
 }
 
+function getMyVisibleOrders() {
+  const visible = orders.filter(o => !hiddenOrderIds.includes(o.id));
+  if (currentRole === 'staff') return visible;
+  const myCode = currentUser && currentUser.code;
+  const myName = currentUser ? currentUser.name : 'Estudiante Demo';
+  return visible.filter(o => (myCode && o.studentCode) ? o.studentCode === myCode : o.student === myName);
+}
+
 function renderOrders() {
   const container = document.getElementById('orders-feed');
-  if (orders.length === 0) {
+  const myOrders = getMyVisibleOrders();
+  if (myOrders.length === 0) {
     container.innerHTML = `
       <div style="text-align:center; padding:40px 18px; color:var(--text-muted)">
         <p style="font-weight:700">No hay pedidos registrados</p>
@@ -1830,7 +1820,7 @@ function renderOrders() {
     sancionado: 'Anulado por sanción',
     rechazado: 'Rechazado por cocina'
   };
-  container.innerHTML = orders.map(o => {
+  container.innerHTML = myOrders.map(o => {
     const isFinished = o.status === 'entregado' || o.status === 'no_reclamado' || o.status === 'sancionado' || o.status === 'rechazado';
     const isActive = !isFinished;
     const queueData = isActive ? getQueuePosition(o.id) : null;
@@ -1935,8 +1925,7 @@ function cancelStudentOrder(orderId) {
   if (!o) return;
   o.status = 'rechazado';
   o.rejectionReason = 'Cancelado por el estudiante';
-  localStorage.setItem('cg_orders', JSON.stringify(orders));
-  broadcastCloudSync();
+  commitOrder(o);
   renderOrders();
   renderCart();
   updateKitchenWaitUI();
@@ -1946,9 +1935,8 @@ function cancelStudentOrder(orderId) {
 }
 
 function deleteSingleOrderFromHistory(orderId) {
-  orders = orders.filter(x => x.id !== orderId);
-  localStorage.setItem('cg_orders', JSON.stringify(orders));
-  broadcastCloudSync();
+  if (!hiddenOrderIds.includes(orderId)) hiddenOrderIds.push(orderId);
+  localStorage.setItem('cg_hidden_orders', JSON.stringify(hiddenOrderIds));
   renderOrders();
   renderCart();
   updateKitchenWaitUI();
@@ -1965,9 +1953,10 @@ function confirmClearOrderHistory() {
 function executeClearHistory() {
   const studentName = currentUser ? currentUser.name : 'Estudiante Demo';
   const finishedStatuses = ['entregado', 'no_reclamado', 'sancionado', 'rechazado'];
-  orders = orders.filter(o => !(o.student === studentName && finishedStatuses.includes(o.status)));
-  localStorage.setItem('cg_orders', JSON.stringify(orders));
-  broadcastCloudSync();
+  orders
+    .filter(o => o.student === studentName && finishedStatuses.includes(o.status))
+    .forEach(o => { if (!hiddenOrderIds.includes(o.id)) hiddenOrderIds.push(o.id); });
+  localStorage.setItem('cg_hidden_orders', JSON.stringify(hiddenOrderIds));
   const modal = document.getElementById('modal-clear-history');
   if (modal) modal.classList.remove('open');
   renderOrders();
@@ -2422,8 +2411,7 @@ function verifyNequiAndStartPrep(id) {
   const o = orders.find(x => x.id === id);
   if (o) {
     o.status = 'preparando';
-    localStorage.setItem('cg_orders', JSON.stringify(orders));
-    broadcastCloudSync();
+    commitOrder(o);
     triggerStudentNotification(o, 'preparando', '¡Tu pago Nequi fue validado! Tu pedido ha entrado en preparación en cocina.');
     renderStaffPanel();
     renderOrders();
@@ -2452,8 +2440,7 @@ function confirmRejectOrder() {
   if (o) {
     o.status = 'rechazado';
     o.rejectionReason = reason;
-    localStorage.setItem('cg_orders', JSON.stringify(orders));
-    broadcastCloudSync();
+    commitOrder(o);
     triggerStudentNotification(o, 'rechazado', `Pago Nequi rechazado por cocina: ${reason}`);
   }
   modal.classList.remove('open');
@@ -2501,8 +2488,7 @@ function confirmApplyStrike() {
     studentName = o.student;
     o.status = 'sancionado';
     o.rejectionReason = reason;
-    localStorage.setItem('cg_orders', JSON.stringify(orders));
-    broadcastCloudSync();
+    commitOrder(o);
     triggerStudentNotification(o, 'sancionado', `Sanción disciplinaria aplicada: ${reason}`);
   }
 
@@ -2543,8 +2529,7 @@ function advanceOrderStatus(id, newStatus) {
     } else if (newStatus === 'entregado') {
       triggerStudentNotification(o, 'entregado', '¡Tu pedido fue entregado en barra! Gracias por tu compra.');
     }
-    localStorage.setItem('cg_orders', JSON.stringify(orders));
-    broadcastCloudSync();
+    commitOrder(o);
     renderStaffPanel();
     renderOrders();
     renderCart();
@@ -2559,8 +2544,7 @@ function markOrderNoShow(id) {
   if (o) {
     o.status = 'no_reclamado';
     o.rejectionReason = 'Superó el plazo de 15 minutos para retirar en barra';
-    localStorage.setItem('cg_orders', JSON.stringify(orders));
-    broadcastCloudSync();
+    commitOrder(o);
     userStrikes++;
     localStorage.setItem('cg_strikes', userStrikes);
     triggerStudentNotification(o, 'no_reclamado', 'Tu pedido fue cancelado por no reclamo dentro del tiempo límite.');
@@ -2592,8 +2576,7 @@ function quickValidateStaffCode() {
     return;
   }
   o.status = 'entregado';
-  localStorage.setItem('cg_orders', JSON.stringify(orders));
-  broadcastCloudSync();
+  commitOrder(o);
   input.value = '';
   triggerStudentNotification(o, 'entregado', `¡Tu orden ${code} fue entregada en barra con éxito!`);
   renderStaffPanel();
